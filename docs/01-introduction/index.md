@@ -1,25 +1,19 @@
-﻿# Chapter 1 — Introduction to FAST-GC
+﻿# Introduction
 
-## 1.1 Why ground classification matters
+FAST-GC provides workflows for LiDAR ground
+classification and geospatial product generation.
 
-Draft pending source-verified development.
+This book explains how to use its available commands
+and processing stages.
 
-## 1.2 Existing ground classification methods
+## Getting Started
 
-Draft pending.
+Installation and quick-start commands will be verified
+against the current FAST-GC release.
 
-## 1.3 Why FAST-GC?
+## Supported Workflows
 
-Draft pending.
-
-## 1.4 Parameter-free and self-tuning operation
-
-Draft pending.
-
-## 1.5 Scientific evaluation
-
-Source: Fareed et al. (2026), FAST-GC preprint.
-
-## 1.6 Book organization
-
-Draft pending.
+- ALS, ULS, and TLS ground classification
+- FAST-GIS spatial preparation
+- Supported terrain and canopy products
+- Batch processing and practical examples

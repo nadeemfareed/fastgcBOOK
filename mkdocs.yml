@@ -1,6 +1,5 @@
 ﻿site_name: FAST-GC Book
-site_description: Scientific foundations and applications of FAST-GC
-site_url: ""
+site_description: Practical FAST-GC LiDAR processing guide
 docs_dir: docs
 
 theme:
@@ -14,17 +13,13 @@ theme:
 
 plugins:
   - search
+  - glightbox
 
 markdown_extensions:
   - admonition
   - tables
   - attr_list
   - pymdownx.superfences
-  - pymdownx.arithmatex:
-      generic: true
-
-extra_javascript:
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Home: index.md
@@ -32,5 +27,5 @@ nav:
   - FAST-GIS: 02-fast-gis/index.md
   - Ground Classification: 03-ground-classification/index.md
   - Products: 04-products/index.md
-  - Case Studies: 05-case-studies/index.md
-  - Reference: 06-reference/index.md
+  - Examples: 05-case-studies/index.md
+  - Command Reference: 06-reference/index.md

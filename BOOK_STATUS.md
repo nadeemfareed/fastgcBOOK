@@ -1,22 +1,22 @@
-﻿# Book Development Status
+﻿# FAST-GC Book Status
 
-## Current phase
-Repository initialization and scientific source audit.
+## Purpose
 
-## Source baseline
-FAST-GC archive: 2026-10-08
-Ground classification preprint: 2026-09-20
+Practical documentation for the FAST-GC package.
 
-## Chapter status
-- [ ] Chapter 1: Introduction
-- [ ] FAST-GIS architecture
-- [ ] Ground classification algorithms
+## Progress
+
+- [ ] Introduction and installation
+- [ ] FAST-GIS
+- [ ] Ground classification
 - [ ] Geospatial products
-- [ ] Case studies
-- [ ] Scientific references
+- [ ] Practical examples
+- [ ] Command reference
 
-## Next milestone
-Complete source-to-chapter audit and draft Chapter 1.
+## Next
+
+Audit current FAST-GC commands and document FAST-GIS.
 
 ## Publication
-Not yet published.
+
+GitHub Pages: pending.

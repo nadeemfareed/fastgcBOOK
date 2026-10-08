@@ -1,15 +1,35 @@
 ﻿# FAST-GC Book
 
-Scientific foundations, algorithms, geospatial products,
-and reproducible applications of FAST-GC.
+A practical, illustrated guide to the FAST-GC Python package.
 
-This book is developed independently from the FAST-GC
-software repository.
+The book documents processing commands, examples, outputs,
+and workflows for LiDAR ground classification and geospatial
+product generation.
 
-## Development
+## Contents
 
-- Source-verified scientific writing
-- Chapter-by-chapter development
-- Reproducible LiDAR examples
-- Git-based version control
-- MkDocs Material publication
+- Getting started
+- FAST-GIS spatial operations
+- Ground classification
+- Geospatial products
+- Practical processing examples
+- Command reference
+
+## Features
+
+- Copyable FAST-GC commands
+- Point-cloud figures and raster maps
+- GIF animations
+- Input/output examples
+- Searchable documentation
+
+FAST-GC performs the processing. This repository provides
+documentation, not another processing package.
+
+## Preview
+
+    python -m mkdocs serve
+
+## Build
+
+    python -m mkdocs build --strict
