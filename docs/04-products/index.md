@@ -47,7 +47,7 @@ if ($LASTEXITCODE -ne 0) { throw 'FAST-GC executable unavailable' }
 
 ```powershell
 fastgc --workflow derive-only `
-    --input "$dem" `
+    --in_path "$dem" `
     --out_dir "$out" `
     --products FAST_TERRAIN `
     --terrain_products all `
@@ -60,7 +60,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Direct DEM terrain derivation failed' }
 | Parameter | Function / definition | Configuration guidance |
 |---|---|---|
 | `--workflow derive-only` | Generate derivatives without rerunning ground classification | Use when an authoritative merged DEM already exists |
-| `--input` | Input dataset | Supply the validated `.tif` DEM path |
+| `--in_path` | Input dataset | Supply the validated `.tif` DEM path |
 | `--out_dir` | Output destination | Keep outputs separate from the source DEM |
 | `--products FAST_TERRAIN` | Select terrain product family | Requires the integrated terrain-capable FAST-GC version |
 | `--terrain_products all` | Select supported terrain derivatives | Check installed product registry; do not assume this means every optional product |
@@ -77,7 +77,7 @@ $las = 'C:\Users\nadee.NFAREED1106\OneDrive\Pictures\Site15.las'
 $runOut = 'C:\Users\nadee.NFAREED1106\OneDrive\Pictures\Site15_FASTGC_terrain_integrated'
 if (-not (Test-Path -LiteralPath $las -PathType Leaf)) { throw "Missing LAS: $las" }
 fastgc --workflow tile-run-merge `
-    --input "$las" `
+    --in_path "$las" `
     --out_dir "$runOut" `
     --products FAST_GC FAST_DEM FAST_TERRAIN `
     --terrain_products all `
@@ -90,7 +90,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Integrated ALS-to-terrain workflow failed' }
 | Parameter | Function / definition | Configuration guidance |
 |---|---|---|
 | `--workflow tile-run-merge` | Tile, classify, merge, and derive products | Use for full LAS-to-terrain processing |
-| `--input` | ALS LAS source | Must exist and match the intended survey |
+| `--in_path` | ALS LAS source | Must exist and match the intended survey |
 | `--out_dir` | Full workflow destination | New directory prevents confusion with earlier benchmark products |
 | `--products FAST_GC FAST_DEM FAST_TERRAIN` | Ground classification, DEM, and terrain | The terrain stage consumes the merged DEM |
 | `--terrain_products all` | Terrain product selection | Confirm precise included products with the installed CLI |
