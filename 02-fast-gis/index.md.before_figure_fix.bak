@@ -1,0 +1,754 @@
+# Chapter 3 — FAST-GIS: LiDAR survey sampling, plot extraction, and downstream products
+
+**Software scope:** FAST-GC 0.2.1, `fastgc gis` and `fastgc --workflow plots-run`.  
+**Demonstration:** BR01 Airborne Laser Scanning (ALS) survey, five randomly selected circular plots, Plot 005 visual examples.  
+**Reproducibility status:** the five-plot *unbuffered* clipping run and its downstream raster-mask failure were observed in terminal logs. A *buffered* Plot 005 clipping metadata file supplied with the figures was independently inspected: `point_extent=core_plus_buffer`, `buffer_m=5`, `core_points=79,211`, `points_written=162,139`. The uploaded rasters demonstrate downstream product existence; a complete successful terminal log for all five buffered plots was not supplied. The two standalone elevation/height GeoTIFF labels remain provisional.
+
+## 3.1 Scope and scientific motivation
+
+FAST-GIS bridges a georeferenced LiDAR survey and repeatable plot-level analysis. It discovers survey files, resolves survey geometry and coordinate reference systems (Coordinate Reference System (CRS)), selects or imports plot footprints, clips LAS/LAZ points, publishes a machine-readable collection, and hands that collection to FAST-GC for ground classification and forest/terrain products. Plot *core* and *processing buffer* are distinct: processing uses extra spatial context, while mapped raster results are masked back to the core polygon.
+
+FAST-GIS is **not** a ground classifier or canopy-height estimator. Those operations are performed by downstream FAST-GC workflows. This distinction is important for provenance, especially when rough-height sampling is used before ground classification.
+
+### 3.1.1 Verified capabilities and completeness checklist
+
+| FAST-GIS capability | Source-confirmed behavior | Included here |
+|---|---|---|
+| Random sampling | Observed XY occupancy, deterministic seed, nonoverlapping core+buffer footprints | §3.3, worked example |
+| Continuous/systematic sampling | Occupancy-aware lattice placement, overlap and phase search | §3.4 |
+| Rough-height-stratified sampling | Three equal-sized strata from Digital Surface Model (DSM) minus local low-return proxy; **not validated Canopy Height Model (CHM)** | §3.5 |
+| Imported plot boundaries | KML, KMZ, SHP, GPKG, GeoJSON, CSV; optional vector layer | §3.6 |
+| Plot shapes | Circle, hexagon, square, rectangle, ellipse; support varies by sampling mode | §3.2 |
+| Multiple survey tiles | Survey catalog and compatible source clipping | §3.7 |
+| CRS handling | Projected metre coordinates; `--source_crs` override for missing CRS / CSV centres | §3.7 |
+| Plot manifest and metadata | Per-plot LAZ, JSON metadata, collection manifest, sampling provenance | §3.8 |
+| Plot-level downstream processing | `plots-run` consumes the collection and publishes products in it | §3.9 |
+| Core raster masking | Uses authoritative `core_geometry`, `processing_crs`, `point_extent=core_plus_buffer` | §3.8–3.9 |
+| Terrain/structure product interpretation | Functional definitions, metrics, examples, limits | §3.10–3.14 |
+| Failure modes and validation | Root path, buffer metadata, CRS, partial execution | §3.15 |
+
+**Scope boundary:** FAST-GIS supports all five shapes for the geometry/import/continuous paths, but the current `rough_height_stratified` CLI explicitly restricts its shape to **circle**. For the random path, the integrated CLI passes `shape` and `radius`, but not the separate `width_m`, `height_m`, or `rotation_deg` options to the random sampler; those dimension controls are principally relevant to continuous layouts. Do not assume identical parameter behavior across modes.
+
+### The running case study: follow Plot 005 from source to measurements
+
+This chapter uses **one consistent observational example**: Plot 005, selected as one of five random circular cores from the BR01 ALS survey. All point-cloud and raster panels below refer to **this same Plot 005**, unless explicitly labeled *schematic*. Readers can therefore compare canopy features, terrain patterns, point support, and vertical structure without switching study sites. The diagrams illustrating other shapes and sampling strategies are **conceptual drawings**, not additional BR01 observations.
+
+| Stage | Same Plot 005 input/output | What to inspect in the figure | Scientific question |
+|---|---|---|---|
+| 1. Survey and clipping | BR01 source → `Plot_005.laz` + `Clip_Plot_005.json` | Circular core vs buffered neighborhood | Which points belong to the measurement area? |
+| 2. Ground classification | `FAST_GC` | Ground/non-ground colors in plan and profile | Where is the terrain under the trees? |
+| 3. Height normalization | `FAST_NORMALIZED` | Height above ground in profile | How tall and vertically layered is vegetation? |
+| 4. Surface and terrain | Digital Elevation Model (DEM)/DSM/CHM and `FAST_TERRAIN` | Height surface vs slope, aspect, roughness | How do topography and canopy differ? |
+| 5. Canopy and structure | `FAST_STRUCTURE` | Cover, height, diversity and vertical gaps | How complex is the forest within the plot? |
+| 6. Geometric descriptors | Structure geometry rasters | Linearity, planarity, anisotropy | What 3D arrangements are represented? |
+
+**Figure-reading convention:** Maps are north-up georeferenced views. Side views use elevation or normalized height as labeled. A raster cell's color represents the **metric and units on that panel's own colorbar**, not a common scale across products. White/no-data cells are not automatically zero vegetation. Each figure appears once in its relevant section. Where the MkDocs GLightbox plugin is enabled, clicking the image opens the original PNG for zooming.
+
+## 3.2 Plot geometry and processing footprint
+
+The plot *core* is the intended measurement area. A processing buffer of width  surrounds it; its points provide neighborhood context for classification and raster interpolation.
+
+| Geometry | Definition / formula | What it measures | Typical use |
+|---|---|---|---|
+| Circle | Circular area specified by centre and radius | Fixed-radius area | Inventory plots, local forest structure |
+| Square | Four equal sides and right angles | Equal-sided area | Grid-compatible sampling |
+| Rectangle | Four sides with specified width and height | Elongated survey area | Transects and edge studies |
+| Ellipse | Oval specified by major and minor dimensions | Directional oval area | Elongated features |
+| Regular hexagon | Six equal sides | Compact six-sided area | Spatially regular tessellation |
+
+For a circular core with a 15 m radius, the nominal area is 706.86 square metres. A 5 m buffer expands the processing radius to 20 m and the nominal processing area to 1,256.64 square metres. These are geometric areas, not guarantees of observed point coverage.
+
+**Boundary interpretation:** Point clouds used during processing can extend beyond the 15 m core. Core-masked raster products should not be mistaken for rectangular full-extent outputs or for a 20 m measurement plot.
+
+
+
+[![Schematic of five supported FAST-GIS plot shapes](../assets/chapter03/diagrams/plot_shapes.svg)](../assets/chapter03/diagrams/plot_shapes.svg)
+
+*Figure 3.A. Schematic plot geometries (not survey-derived measurements): circle, square, rectangle, ellipse, and regular hexagon. The centre dot denotes the plot reference point.*
+
+
+### 3.2.1 Processing core and buffer
+
+
+[![Plot core and processing buffer schematic](../assets/chapter03/diagrams/core_buffer.svg)](../assets/chapter03/diagrams/core_buffer.svg)
+
+*Figure 3.B. Measurement core (15 m radius) and 5 m processing buffer; conceptual diagram, not to scale with any survey map. The buffer supports computations; the core defines the reported plot.*
+
+
+## 3.3 Sampling techniques at a glance
+
+
+[![Schematic comparison of FAST-GIS sampling techniques](../assets/chapter03/diagrams/sampling_methods.svg)](../assets/chapter03/diagrams/sampling_methods.svg)
+
+*Figure 3.C. Conceptual placement strategies. Random sampling selects eligible locations reproducibly; continuous sampling follows a lattice; rough-height sampling balances plots across height strata; imported sampling honors externally supplied boundaries. Shapes and positions are illustrative, not actual BR01 plot coordinates.*
+
+
+| Sampling mode | How plot locations are chosen | Typical question | Input and principal options |
+|---|---|---|---|
+| `random` | Seeded selection within observed survey coverage, with footprint separation | Representative plot selection | `--plots`, `--shape`, `--radius`, `--seed`, `--coverage_cell_m` |
+| `continuous` | Regular candidate lattice with overlap and phase evaluation | Spatially systematic survey | `--shape`, `--width_m`, `--height_m`, `--overlap_m`, `--rotation_deg`, `--phase_steps` |
+| `rough_height_stratified` | Median rough height per candidate core, then balanced low/medium/high groups | Coverage across canopy-height strata | Existing `--dsm_path`, `--plots` divisible by 3, `--low_max`, `--medium_max`; circle only |
+| `imported` | Uses investigator-supplied plot footprints or centres | Reuse permanent inventory plots or field boundaries | `--plot_file`, optional `--layer`, `--source_crs`, `--buffer` |
+
+### 3.3.1 Random sampling: complete BR01 example
+
+Random sampling uses an observed-coverage grid to identify eligible centres, avoids overlaps between processing footprints, and uses a seed for reproducibility. The selected centres are therefore constrained by survey coverage rather than uniformly sampled from every coordinate inside the survey bounding box.
+
+```powershell
+conda activate fastgc
+
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_Buffered_Test" `
+    --sensor_mode ALS `
+    --sampling random `
+    --plots 5 `
+    --shape circle `
+    --radius 15 `
+    --buffer 5 `
+    --seed 42
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--in_path` | Source LAS/LAZ file or survey directory | Use georeferenced source data; here BR01 ALS |
+| `--out_dir` | New published FAST-GIS workspace | Choose a **new** directory; the sampler publishes transactionally |
+| `--sensor_mode` | Sensor type | `ALS`, `Uncrewed Aerial Laser Scanning (ULS)`, or `Terrestrial Laser Scanning (TLS)`; here `ALS` |
+| `--sampling` | Selection strategy | `random`, `continuous`, `imported`, `rough_height_stratified` |
+| `--plots` | Requested plot count | Here 5; default 30; placement may fail if coverage is insufficient |
+| `--shape` | Core polygon geometry | Here `circle`; defaults to `hexagon` |
+| `--radius` | Core radius, metres | Here 15 m; default 15 m |
+| `--buffer` | Extra processing support, metres | Here 5 m; default 5 m; **recommended for this core-masking example** |
+| `--seed` | Random-number seed | Here 42; default 42 |
+| `--coverage_cell_m` | XY occupancy-cell size | Default 5 m; smaller cells can improve footprint screening at additional cost |
+| `--chunk_size` | LAS points read per chunk | Default 500,000; adjust for available memory |
+
+**Observed evidence:** A five-plot, zero-buffer run completed clipping in 9.76 s for the 12,531,758-point BR01 input, but subsequent `plots-run` stopped at raster masking. The uploaded buffered Plot 005 metadata establishes that the 5 m buffer configuration creates the expected `core_plus_buffer` contract. Do not present the 9.76 s timing as a benchmark for the buffered run.
+
+### 3.3.2 Plot 005 raw and processed point-cloud views
+
+[![Plot 005 ground-classified point cloud, top and side views](../assets/chapter03/plot005/01_classified_points.png)](../assets/chapter03/plot005/01_classified_points.png)
+
+*Figure 3.1.* Plot 005, ground-classified point cloud in plan and profile. The displayed sample contains up to 35,000 points for legibility; the buffered plot file contains 162,139 points. Core plot geometry and buffered processing extent must be distinguished when interpreting point counts.
+
+[![Plot 005 elevation-colored point cloud](../assets/chapter03/plot005/02_elevation_points.png)](../assets/chapter03/plot005/02_elevation_points.png)
+
+*Figure 3.2.* Plan and side views of Plot 005 colored by elevation. Elevation represents absolute Z, not normalized canopy height.
+
+[![Plot 005 normalized point cloud](../assets/chapter03/plot005/03_normalized_points.png)](../assets/chapter03/plot005/03_normalized_points.png)
+
+*Figure 3.3.* Height-normalized Plot 005 points, illustrating vertical canopy structure relative to the terrain surface.
+
+## 3.4 Continuous/systematic plot sampling
+
+The continuous sampler searches a spatial lattice of candidate plot centres and evaluates layout against observed XY coverage. `--overlap_m` specifies intended overlap between adjacent core footprints; `--phase_steps` controls lattice-offset search. Its purpose is regular spatial coverage, **not** a statistically independent random sample.
+
+```powershell
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_Continuous" `
+    --sensor_mode ALS `
+    --sampling continuous `
+    --shape square `
+    --width_m 30 `
+    --height_m 30 `
+    --overlap_m 5 `
+    --buffer 5 `
+    --phase_steps 10
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--sampling continuous` | Systematic layout selection | Use for spatially distributed, regular plot coverage |
+| `--shape square` | Plot footprint | Circle, hexagon, square, rectangle, ellipse supported by geometry module |
+| `--width_m` | Core width | Default 30 m; controls square/rectangle/ellipse geometry |
+| `--height_m` | Core height | Default 30 m; used for rectangle/ellipse; square enforces equal sides |
+| `--overlap_m` | Core-footprint overlap | Default 5 m; must be nonnegative |
+| `--buffer` | Additional processing context | Default 5 m |
+| `--phase_steps` | Candidate lattice phases | Default 10; higher values can increase layout-search work |
+| `--rotation_deg` | Footprint rotation | Default 0°; relevant for supported continuous layouts |
+| `--coverage_cell_m` | Observed occupancy grid resolution | Default 5 m; trade-off between detail and cost |
+
+**Validation:** This is a source-supported CLI example, not a run demonstrated by the uploaded BR01 outputs. It should be tested before attaching measured timing or plot-count claims.
+
+## 3.5 Rough-height-stratified circular sampling
+
+This mode samples low-, medium-, and high-rough-height plots *before* ground classification. It requires an existing DSM and a single LAS/LAZ source. The rough-height proxy subtracts a local low-return elevation estimate from the digital surface model and sets negative results to zero. This proxy is not a validated canopy-height model. The sampler classifies each candidate plot by the **median** valid rough-height value inside its circular core, and allocates an equal number of plots to three strata. The requested plot count must therefore be divisible by three.
+
+### Step A — Create the required DSM
+
+```powershell
+fastgc `
+    --workflow run `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_DSM" `
+    --sensor_mode ALS `
+    --products FAST_DSM `
+    --grid_res 1.0
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--workflow run` | Standard source-cloud workflow | Used here to generate the DSM |
+| `--products FAST_DSM` | Digital surface model | Rough-height sampling requires an existing DSM GeoTIFF |
+| `--grid_res` | Raster cell size, metres | Here 1 m; finer resolution increases raster cells and memory |
+| `--out_dir` | Product output directory | DSM must be accessible to the subsequent GIS command |
+
+### Step B — Select three plots per rough-height stratum
+
+```powershell
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_RoughHeight" `
+    --sensor_mode ALS `
+    --sampling rough_height_stratified `
+    --dsm_path "G:\FASTGC_BR01_DSM\FAST_DSM\ALS-on_BR01_2019-07-05_300m.tif" `
+    --plots 9 `
+    --shape circle `
+    --radius 15 `
+    --buffer 5 `
+    --low_max 5 `
+    --medium_max 15 `
+    --seed 42
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--dsm_path` | Existing DSM GeoTIFF | Required; DSM and LAS must have matching embedded projected CRS |
+| `--plots` | Total stratified sample | Positive multiple of 3; here 9 |
+| `--shape circle` | Stratified core geometry | **Only circle supported** by this mode |
+| `--low_max` | Low/medium threshold in rough-height metres | Default 5 m; adjust for vegetation height distribution |
+| `--medium_max` | Medium/high threshold | Default 15 m; must exceed `low_max` |
+| `--radius`, `--buffer` | Core radius and processing support | Defaults 15 m and 5 m |
+| `--seed` | Reproducible candidate ordering | Default 42 |
+
+**Known limitation from the earlier BR01 attempt:** LAS CRS WKT and DSM EPSG:25832 were not considered equal by the sampler's strict CRS comparison, even though both described ETRS89 / UTM zone 32N. The command above is **illustrative, not validated on this specific input/DSM pair**. Do not silently alter CRS metadata or describe a failed attempt as a successful demonstration.
+
+## 3.6 Imported plot definitions
+
+FAST-GIS accepts pre-existing plot polygons or centres from KML, KMZ, shapefile, GeoPackage, GeoJSON, and CSV. Vector coordinates must be interpretable in a known CRS; CSV centres may need `--source_crs`.
+
+```powershell
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_Imported" `
+    --sensor_mode ALS `
+    --sampling imported `
+    --plot_file "G:\Survey\BR01_plots.geojson" `
+    --buffer 5
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--sampling imported` | Use externally defined plot geometries | No random selection; footprints come from plot file |
+| `--plot_file` | Input plot-definition file | KML/KMZ/SHP/GPKG/GeoJSON/CSV; example path must exist |
+| `--layer` | Layer selector | Supply for a multilayer GeoPackage when necessary |
+| `--source_crs` | CRS override | For missing LAS/LAZ CRS or CSV plot centres |
+| `--buffer` | Processing margin | Default 5 m; preserve core polygon in metadata |
+
+**Important:** `G:\Survey\BR01_plots.geojson` is a placeholder for a real user-supplied plot file, not an observed artifact from this case study.
+
+### 3.6.1 Using the author's own field-plot boundaries
+
+An investigator who already has mapped inventory plots does **not** need to generate random or continuous plots. The `imported` mode clips the LiDAR survey using the provided geometries. Supported inputs from the supplied FAST-GIS modules include **ESRI Shapefile (`.shp` plus its `.shx`, `.dbf`, and preferably `.prj` companions), KML, KMZ, GeoJSON, GeoPackage (`.gpkg`), and CSV plot centres**. Preserve unique plot identifiers and a valid coordinate reference system. Polygon inputs define their own core boundaries; CSV centre records need shape dimensions and, when needed, an explicit CRS. Do not interpret a centre-only CSV as an arbitrary polygon boundary.
+
+**Shapefile example (existing polygon boundaries):**
+
+```powershell
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_SHP_Plots" `
+    --sensor_mode ALS `
+    --sampling imported `
+    --plot_file "G:\Survey\permanent_plots.shp" `
+    --buffer 5
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--plot_file` | Existing SHP polygon dataset | Include shapefile companion files and a valid CRS |
+| `--sampling imported` | Use authored plot geometry | Does not resample locations |
+| `--buffer` | Processing margin around imported core | 5 m in this example; preserves polygon as core |
+| `--out_dir` | Published collection workspace | Use a fresh directory |
+| `--in_path`, `--sensor_mode` | Source survey and sensor | Keep consistent with survey |
+
+**KML example (existing plot boundaries):**
+
+```powershell
+fastgc gis `
+    --in_path "G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz" `
+    --out_dir "G:\FASTGC_BR01_KML_Plots" `
+    --sensor_mode ALS `
+    --sampling imported `
+    --plot_file "G:\Survey\permanent_plots.kml" `
+    --buffer 5
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--plot_file` | KML boundary dataset | Verify KML coordinates and polygon validity |
+| `--sampling imported` | Honor original plot locations | No random plot selection |
+| `--buffer` | Processing support | Here 5 m |
+| `--out_dir` | Separate output collection | Avoid overwriting other sampling demonstrations |
+| `--in_path`, `--sensor_mode` | Survey input and sensor type | ALS example |
+
+For a multilayer GeoPackage, add `--layer "plot_boundaries"` to select the appropriate layer. The examples above require the investigator's actual SHP or KML file; these placeholder paths are **not** part of the supplied BR01 dataset. After importing, run `plots-run` against the newly generated `ALS_plots` collection using the same command pattern shown in §3.9.
+
+
+## 3.7 Survey catalog, CRS, multiple source files, and spatial integrity
+
+The integrated source modules include survey discovery/cataloging, survey-region grouping, spatial access, clipping across compatible source files, and transactional publication. These support single-file and directory-based survey inputs.
+
+| Function / module | Role | Integrity or performance implication |
+|---|---|---|
+| `survey_catalog.build_survey_catalog` | Discover LAS/LAZ survey files and CRS/bounds | Record skipped/unresolved CRS tiles |
+| `survey_regions` / `survey_index` | Group and index survey coverage | Support coverage-aware sampling |
+| `spatial_index` / `las_query` | Spatial candidate retrieval | Reduce unnecessary scanning in relevant operations |
+| `multi_clip.clip_las_sources` | Clip points from compatible source files | Deduplicate overlapping source returns as implemented |
+| `plot_io.import_plots` | Parse external plot geometry | Preserve plot IDs and CRS transformation |
+| `plot_runner.extract_plots` | Extract core+buffer points and metadata | Publish per-plot LAZ and JSON |
+| `publish.publish_directory` | Stage and publish completed collections | Avoid exposing partially written collection roots |
+| `core_mask.mask_plot_rasters_to_core` | Crop/mask rasters to core geometry | Requires correct processing metadata |
+
+Use a projected CRS with metre units for geometric parameters in metres. A nominally identical EPSG code does not always guarantee that differently encoded CRS representations pass the strict comparison used by a particular module.
+
+## 3.8 FAST-GIS output and metadata contract
+
+A standard FAST-GIS run publishes a workspace containing the plot collection and supporting manifests:
+
+```text
+G:\FASTGC_BR01_Buffered_Test\
+    sampling_manifest.json
+    workspace_manifest.json
+    sample_plots.geojson
+    ALS_plots\
+        plots_manifest.json
+        workspace_manifest.json
+        survey_catalog.json
+        survey_regions.json
+        Plot_001\
+            Plot_001.laz
+            Clip_Plot_001.json
+        ...
+        Plot_005\
+            Plot_005.laz
+            Clip_Plot_005.json
+```
+
+Some ancillary files vary by sampling method. `plots_manifest.json` is the authoritative collection index. Each plot record identifies the point file and its metadata file relative to the collection root; `plots-run` validates the schema, plot count, file paths, and plot IDs.
+
+The uploaded buffered Plot 005 metadata confirms:
+
+| Field | Plot 005 value | Why it matters |
+|---|---|---|
+| `schema` | `fastgc.gis.plot` | Identifies per-plot metadata |
+| `sampling_method` | `random_observed_coverage` | Records sampling method |
+| `point_extent` | `core_plus_buffer` | Required by raster core-mask stage |
+| `buffer_m` | 5.0 | Documents processing support |
+| `core_points` | 79,211 | Points inside measurement core |
+| `points_written` | 162,139 | Points in buffered processing cloud |
+| `core_geometry` | Polygon geometry | Authoritative raster mask |
+| `processing_crs` | Embedded projected CRS WKT | Coordinate system for masking |
+
+**Provenance rule:** 162,139 buffered points are **not** the same as 79,211 core points. The former supports computation; the latter describes the nominal measurement plot. Do not report buffered counts as plot-core density.
+
+## 3.9 From clipping to downstream `plots-run`
+
+The downstream workflow should discover all plots from the collection manifest without manual JSON editing or plot-by-plot commands. It publishes results **within the collection root**; an unrelated `--out_dir` is rejected.
+
+```powershell
+fastgc `
+    --workflow plots-run `
+    --in_path "G:\FASTGC_BR01_Buffered_Test\ALS_plots" `
+    --sensor_mode ALS `
+    --products FAST_GC FAST_DEM FAST_CHM `
+    --grid_res 0.5 `
+    --jobs 1
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--workflow plots-run` | Managed plot-collection processing | Reads `plots_manifest.json` and per-plot JSON |
+| `--in_path` | Collection root | Must be the `ALS_plots` directory, not its parent |
+| `--sensor_mode` | Sensor mode | Must be consistent with the collection |
+| `--products` | Requested products | Here ground classification, DEM, CHM |
+| `--grid_res` | Raster resolution | Here 0.5 m; adjust for point density and plot scale |
+| `--jobs` | Concurrent plot workers | Here 1 for reproducible first validation |
+| `--out_dir` | **Omit for managed collection** | The CLI requires collection-root publication |
+
+### 3.9.1 Product lineage
+
+1. **FAST-GIS:** survey → sampled polygon cores → buffered LAZ + per-plot metadata + collection manifest.
+2. **FAST_GC:** classify ground/non-ground returns in each plot.
+3. **FAST_DEM:** interpolate terrain elevation from suitable ground support.
+4. **FAST_DSM:** estimate surface elevation from appropriate returns when requested.
+5. **FAST_CHM:** estimate height above terrain; method-dependent surface processing.
+6. **FAST_NORMALIZED:** express point Z relative to terrain.
+7. **FAST_TERRAIN:** derive terrain metrics from the DEM.
+8. **FAST_STRUCTURE:** derive vertical and geometric forest descriptors.
+9. **FAST_ITD / FAST_TREECLOUDS:** tree detection and individual-tree extraction, when requested and appropriately configured.
+10. **FAST_CHANGE:** compare matched products from multiple surveys, not meaningful from a single-date plot alone.
+
+This is a **conceptual lineage**, not a claim that every downstream product depends only on the three initial rasters or that every product was successfully executed in the demonstrated command.
+
+## 3.10 Ground, surface, and canopy-height product bundle
+
+| Product / function | Definition | Metric and units | Utility and cautions |
+|---|---|---|---|
+| `FAST_GC` / ground classification | Assign ground vs non-ground classification to LiDAR returns | Point class codes, spatial distribution | Terrain estimation, vegetation separation; not a raster |
+| `FAST_DEM` / digital elevation model | Terrain elevation interpolated from ground-classified LiDAR returns. | Ground elevation (m) | Slope, aspect, normalization; interpolation method matters |
+| `FAST_DSM` / digital surface model | Elevation of the upper visible surface represented by LiDAR returns. | Surface elevation (m) | Canopy top, built surface, rough-height proxy |
+| `FAST_CHM` / canopy height model | Canopy height above the local terrain, derived from surface and terrain elevations. | Canopy height (m) | Height distribution, tree detection; surface method matters |
+| `FAST_NORMALIZED` / height normalization | Each point’s elevation expressed relative to the terrain elevation at its horizontal location. | Point height above terrain (m) | Vertical profiles, understory/canopy structure |
+
+[![Plot 005 surface models](../assets/chapter03/plot005/01_surface_models.png)](../assets/chapter03/plot005/01_surface_models.png)
+
+*Figure 3.4.* Uploaded Plot 005 surface-model rasters. **The two standalone GeoTIFF identities were inferred from ranges and are provisional**; confirm against source product directories before final publication.
+
+### 3.10.1 Expanded core and structure command
+
+```powershell
+fastgc `
+    --workflow plots-run `
+    --in_path "G:\FASTGC_BR01_Buffered_Test\ALS_plots" `
+    --sensor_mode ALS `
+    --products FAST_GC FAST_DEM FAST_DSM FAST_CHM FAST_NORMALIZED FAST_TERRAIN FAST_STRUCTURE `
+    --terrain_products slope_degrees aspect hillshade roughness tri tpi `
+    --structure_products all `
+    --grid_res 0.5 `
+    --structure_res 1.0 `
+    --jobs 1
+```
+
+| Parameter | Function / definition | Configuration guidance |
+|---|---|---|
+| `--products` | Select core and downstream bundles | Use named products to avoid unintended workload |
+| `--terrain_products` | Select DEM-derived metrics | Here six terrain examples; `all` requests all available |
+| `--structure_products` | Structure metric selector | CLI advertises `all` plus selected named core metrics |
+| `--structure_res` | Structural raster cell size | Here 1.0 m; differs from `--grid_res` |
+| `--grid_res` | DEM/DSM/CHM resolution | Here 0.5 m |
+| `--jobs` | Plot parallelism | Start at 1, benchmark before scaling |
+
+**Execution note:** This command uses advertised CLI arguments and the correct managed collection root. The complete expanded run has not been validated by the terminal output supplied in this conversation.
+
+## 3.11 Terrain bundle: definition, measurement, and interpretation
+
+Terrain products are derived from the DEM. The descriptions below explain the scientific meaning of each product; exact raster kernels, window sizes, and boundary handling depend on the implementation.
+
+| Metric / CLI name | Scientific definition | Output | Use at 15 m core |
+|---|---|---|---|
+| Slope, `slope_degrees` | Steepness of the terrain surface, expressed as an angle in degrees. | Degrees | Steepness, microtopography, plot comparability |
+| Aspect, `aspect` | Orientation of maximum downslope gradient | Azimuth (degrees) | Insolation/exposure, ecological gradients |
+| Hillshade, `hillshade` | Illumination from slope, aspect, solar azimuth/altitude | Relative intensity | Terrain visualization |
+| Roughness, `roughness` | Local variation in elevation, per implementation | Terrain heterogeneity | Surface complexity; window and units require method check |
+| Terrain Ruggedness Index (TRI), `tri` | Local elevation difference relative to neighbors | Terrain ruggedness | Terrain heterogeneity |
+| Topographic Position Index (TPI), `tpi` | Difference between a cell’s elevation and the mean elevation of its neighborhood. | Relative elevation (m) | Ridges, depressions, microsites |
+| Profile curvature | Surface curvature in downslope direction | Curvature | Flow acceleration/erosion tendencies |
+| Planform curvature | Curvature perpendicular to slope | Curvature | Flow convergence/divergence |
+| Topographic Wetness Index (TWI), `twi` | Terrain wetness potential combining local slope and upslope contributing area. | Index | Potential wetness; requires appropriate contributing area |
+| Flow accumulation | Number/area of upslope cells reaching cell | Cells or area | Drainage analysis; plot-edge artifacts important |
+
+[![Plot 005 terrain derivatives](../assets/chapter03/plot005/02_terrain.png)](../assets/chapter03/plot005/02_terrain.png)
+
+*Figure 3.5.* Plot 005 slope, aspect, hillshade, roughness, TRI, and TPI. Each panel uses its own legend; compare spatial patterns rather than raw color values between different metrics.
+
+**Small-plot caution:** hydrological accumulation, watershed boundaries, stream order, and wetness indices are strongly influenced by the plot boundary. For defensible hydrology, compute these on a larger surrounding DEM and extract the core plot afterward.
+
+### 3.11.1 Plot 005 terrain interpretation
+
+The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.
+
+| Raster product | Plot 005 observed range | How to use this Plot 005 figure |
+|---|---:|---|
+| `slope_degrees` | 0.00–49.30 | Locate steep and gentle parts of this core; edge derivatives require caution. |
+| `aspect` | 0.00–359.81 | Compare orientation, not numeric magnitude, with slope. |
+| `hillshade` | 108.79–254.62 | Recognize terrain shape visually; illumination is not measured sunlight. |
+| `roughness` | 0.01–1.11 | Identify local variation in terrain elevation. |
+| `tri` | 0.02–1.31 | Compare spatial terrain ruggedness. |
+| `tpi` | -0.36–0.38 | Positive vs negative local relative elevation. |
+
+
+
+**Interpretation for Plot 005.** Inspect slope and hillshade together to locate topographic transitions. Use TPI and roughness to assess whether these are local convexities or irregular patches. Avoid interpreting small-plot flow routing as watershed-scale hydrology.
+
+## 3.12 Forest structure bundle: canopy and height statistics
+
+The uploaded FAST_STRUCTURE archive contains many more raster descriptors than the eight named core metrics exposed by the basic CLI selector. The table documents the actual displayed product families. Descriptions explain what the metrics measure; exact thresholds and binning follow the source implementation.
+
+| Metric / figure filename | Definition / representative definition | Measurement | Why useful |
+|---|---|---|---|
+| Canopy cover, `canopy_cover` | Fraction of returns/area meeting canopy criterion, per configured method | Fraction or percent (verify raster scaling) | Canopy occupancy and openness |
+| Mean height, `z_mean` | Mean height of vegetation returns above the terrain | m | Typical vegetation height |
+| Maximum height, `z_max` | Highest vegetation return above the terrain in each cell | m | Upper canopy height |
+| Height SD, `z_sd` | Standard deviation of vegetation-return heights | m | Vertical heterogeneity |
+| Point count, `n_points` | Number of eligible vegetation returns in a cell | Count | Sampling support and data density |
+| Point density, `point_density` | Eligible vegetation returns per square metre | Points/m² | Coverage and measurement support |
+| Foliage Height Diversity (FHD), `FHD` | Shannon diversity of LiDAR returns distributed across occupied vertical height intervals. | Index | Vertical foliage distribution |
+| Vertical Complexity Index (VCI), `VCI` | Vertical entropy normalized by the number of occupied height intervals. | Index | Comparison across vertical strata |
+| Height percentiles, `z_p50`, `z_p95`, `z_p99` | Quantiles of normalized height | m | Median, upper, and extreme canopy structure |
+| Vertical entropy, `vertical_entropy` | Entropy of vertical occupancy distribution | Index | Canopy layering |
+| Vertical evenness | Evenness across occupied height bins | Index | Balanced vs concentrated foliage |
+| Vertical richness | Number of occupied height strata | Count | Structural layering |
+| Vertical occupancy fraction | Occupied fraction of possible height bins | Fraction | Vertical filling |
+| Maximum vertical gap | Largest unoccupied vertical interval | m | Vertical discontinuity |
+| Gap count / fraction | Number or proportion of empty height intervals | Count / fraction | Canopy discontinuity |
+| Effective layers | Diversity-derived effective number of occupied layers | Index / count-equivalent | Structural complexity |
+| Vertical dominance | Concentration of occupancy in one/few layers | Index | Layer dominance |
+| Vertical Simpson | Simpson-type vertical diversity | Index | Vertical diversity |
+
+[![Plot 005 core structural products](../assets/chapter03/plot005/03_structure_core.png)](../assets/chapter03/plot005/03_structure_core.png)
+
+*Figure 3.6.* Core structural metrics, including canopy cover, point count/density, normalized height statistics, FHD and VCI.
+
+[![Plot 005 vertical structural products](../assets/chapter03/plot005/04_structure_vertical.png)](../assets/chapter03/plot005/04_structure_vertical.png)
+
+*Figure 3.7.* Vertical structure metrics derived from the uploaded Plot 005 rasters.
+
+**Methodological qualification:** Exact FHD/VCI bin definitions, height thresholds, return selection, scaling, and occupancy definitions must be taken from the installed structure implementation or its output metadata before using numerical values in scientific comparisons.
+
+### 3.12.1 Plot 005 canopy and height interpretation
+
+The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.
+
+| Raster product | Plot 005 observed range | How to use this Plot 005 figure |
+|---|---:|---|
+| `canopy_cover` | Proportion of all valid returns exceeding the canopy-height threshold. | Identify covered and open cells; displayed range is fractional. |
+| `z_mean` | Average normalized vegetation-return height. | Typical return height above terrain. |
+| `z_max` | 2.04–43.49 | Upper-canopy height and tall-tree patches. |
+| `z_sd` | Population standard deviation of normalized vegetation-return heights. | Vertical height heterogeneity. |
+| `FHD` | 0.00–3.23 | Diversity of returns among vertical bins. |
+| `VCI` | 0.00–1.00 | Relative vertical complexity; check algorithm-specific binning. |
+| `n_points` | Number of returns meeting the minimum vegetation-height threshold. | Point support behind each metric. |
+| `point_density` | Number of eligible vegetation returns per square metre. | Return density; do not equate with tree density. |
+
+
+
+**Interpretation for Plot 005.** Compare the CHM/height map with canopy cover and z_max to distinguish canopy presence from canopy height. Read FHD and VCI alongside n_points: apparent low complexity in a poorly sampled cell may reflect weak return support, not a simple canopy.
+
+### 3.12.2 Plot 005 vertical-layer interpretation
+
+The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.
+
+| Raster product | Plot 005 observed range | How to use this Plot 005 figure |
+|---|---:|---|
+| `vertical_richness` | Count of vertical height intervals containing at least one return. | How many height layers contain returns. |
+| `vertical_occupancy_fraction` | Proportion of height intervals occupied between the lowest and highest occupied intervals. | What fraction of vertical bins is occupied. |
+| `vertical_gap_fraction` | Proportion of empty intervals within the occupied vertical span. | How much of the vertical profile is empty. |
+| `max_vertical_gap_m` | Height in metres of the longest internal empty interval sequence. | Largest vertical discontinuity. |
+| `z_p50` | 2.04–38.43 | Median normalized height. |
+| `z_p95` | 2.04–43.01 | Upper canopy height distribution. |
+| `z_p99` | 2.04–43.30 | Near-maximum height, less sensitive than absolute max. |
+
+
+
+**Interpretation for Plot 005.** Vertical richness and occupancy reflect how returns populate height bins. A large vertical gap may indicate an understory–overstory separation, but the result depends on bin size and return density. Height percentiles describe distributions, not individually segmented tree heights.
+
+## 3.13 Local 3D geometric and return metrics
+
+The uploaded structure archive also includes geometric descriptors. These describe how points are distributed along their three principal spatial directions. Their values depend on the local point distribution and its sampling support.
+
+
+The descriptions below explain what the descriptors measure. Their values depend on the implementation, neighborhood, and available point density.
+
+| Descriptor | Definition | What it measures | Forestry application |
+|---|---|---|---|
+| Linearity | Extent to which points follow one principal spatial direction. | 1D-like point organization | Stems, branches, elongated structures |
+| Planarity | Extent to which points occupy a locally planar arrangement. | 2D-like local arrangement | Planar patches, surfaces |
+| Sphericity | Extent to which local points are distributed similarly across three spatial directions. | 3D isotropic spread | Volumetric foliage and complex returns |
+| Anisotropy | Strength of directional differences in local point geometry. | Directional organization | Shape differentiation |
+| Omnivariance | Combined spread of the local point distribution along three principal directions. | Local 3D spread | Geometric complexity |
+| Eigenentropy | Diversity of normalized covariance eigenvalues; describes geometric disorder. | Eigenvalue distribution | Geometric disorder |
+| Surface variation | Relative importance of the smallest covariance eigenvalue; departure from a local plane. | Departure from local plane | Surface irregularity |
+| Normal inclination | Angle of local surface normal | Degrees | Surface orientation |
+| Sigma Z | Local standard deviation of Z | m | Vertical roughness |
+| Z skewness / kurtosis | Third/fourth standardized moments | Dimensionless | Shape of vertical return distribution |
+| Mean intensity | Mean LiDAR intensity | Sensor-dependent | Return-strength variation; calibration caveats |
+| First-return fraction | First returns / eligible returns | Fraction | Upper-surface sampling |
+| Multi-return fraction | Multi-return points / eligible returns | Fraction | Canopy penetration / return structure |
+| Vegetation point density | Vegetation returns / area | Points/m² | Vegetation support and spatial heterogeneity |
+
+[![Plot 005 geometry descriptors](../assets/chapter03/plot005/05_structure_geometry.png)](../assets/chapter03/plot005/05_structure_geometry.png)
+
+*Figure 3.8.* Local geometric and return-based descriptors of Plot 005. Interpret these alongside point density and sampling geometry; they are not direct species or stem-class labels.
+
+### 3.13.1 Plot 005 local geometry interpretation
+
+The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.
+
+| Raster product | Plot 005 observed range | How to use this Plot 005 figure |
+|---|---:|---|
+| `anisotropy` | 0.29–1.00 | Directional organization of local 3D points. |
+| `eigenentropy` | 0.00–1.09 | Diversity of local covariance eigenvalues. |
+| `surface_variation` | Relative contribution of the smallest covariance eigenvalue, indicating deviation from planarity. | Departure from locally planar geometry. |
+| `normal_inclination_deg` | 8.62–90.00 | Local orientation. |
+| `first_return_fraction` | 0.00–1.00 | Fraction of first returns. |
+| `multi_return_fraction` | 0.00–1.00 | Return multiplicity / canopy penetration context. |
+
+
+
+**Interpretation for Plot 005.** Compare linearity, planarity and sphericity as relative indicators of 1D, 2D and 3D point arrangements. These are not directly validated stem, branch, or foliage classes; check local point density before inferring structure.
+
+## 3.14 Optional individual-tree and multitemporal bundles
+
+| Product | Function | Output metric | Appropriate use |
+|---|---|---|---|
+| `FAST_ITD` | Detect individual-tree candidates / crowns from CHM or other method-specific inputs | Tree location, crown geometry, tree count | Tree density, crown spacing, inventory support |
+| `FAST_TREECLOUDS` | Extract point subsets associated with trees | Per-tree point clouds | Tree geometry and downstream modeling |
+| `FAST_CHANGE` | Compare aligned DEM/DSM/CHM/terrain products across surveys | Change magnitude, per-cell differences | Disturbance, canopy change, terrain change |
+
+These products are available in the CLI but **were not established as completed outputs in the supplied Plot 005 figure package**. A single-date BR01 plot does not support a multitemporal change claim.
+
+## 3.15 Validation, known errors, and reproducibility
+
+### 3.15.1 Verified operational lessons
+
+| Symptom | Explanation established by CLI/logs | Correct practice |
+|---|---|---|
+| `No LAS/LAZ files found for external plots-run input` | Input pointed at workspace parent, not managed collection | Use `...\ALS_plots` containing `plots_manifest.json` |
+| `--out_dir must be omitted or equal to ... collection root` | Managed `plots-run` publishes inside collection | Omit `--out_dir` |
+| `Core raster masking requires point_extent=core_plus_buffer` | Unbuffered metadata did not satisfy core-mask contract | For this tested workflow use a positive buffer; validate metadata |
+| `LAS and DSM must have matching embedded projected CRS` | Strict rough-height sampler CRS comparison failed | Validate embedded CRS before running; avoid silent relabeling |
+| CHM `ok 1` before traceback | One stage completed, but overall workflow failed | Treat traceback/exit status as authoritative, verify all plots |
+
+### 3.15.2 Reproducibility record for Plot 005
+
+| Property | Observed value |
+|---|---|
+| Survey | BR01 ALS |
+| Source point count | 12,531,758 (terminal output) |
+| Plot count | 5 random circular plots |
+| Core radius | 15 m |
+| Processing buffer | 5 m in uploaded buffered Plot 005 metadata |
+| Seed | 42 |
+| Plot 005 core points | 79,211 |
+| Plot 005 buffered points | 162,139 |
+| Core raster masking contract | `point_extent=core_plus_buffer` |
+| Raster display | Original georeferenced valid pixels, individual colorbars |
+| Surface model identities | DSM/CHM labels provisional for two standalone GeoTIFFs |
+
+### 3.15.3 Figure and product inventory
+
+The companion file [`plot005_product_inventory.csv`](../assets/chapter03/plot005/plot005_product_inventory.csv) records the available raster filenames, resolutions, valid-pixel counts, and value ranges. The companion [`plot005_provenance.md`](../assets/chapter03/plot005/plot005_provenance.md) records figure-production provenance. The figures are **static assets**: MkDocs does not rerun point-cloud processing.
+
+### 3.15.4 Before publication
+
+- [x] Verify integrated FAST-GIS modes, shapes, and CLI options against supplied source modules.
+- [x] Include random, continuous, imported, and rough-height-stratified examples.
+- [x] Explain core vs buffered processing and JSON-driven `plots-run`.
+- [x] Include Plot 005 point-cloud, terrain, canopy/surface, structure, and geometry figures.
+- [x] Include function/definition/metric/usefulness tables and parameter tables after each command.
+- [ ] Verify exact identity of the two standalone GeoTIFFs (DSM vs CHM) from original product paths.
+- [ ] Attach the **successful complete** buffered five-plot `plots-run` terminal log, if available.
+- [ ] Verify exact kernel conventions and units for derived structure indices before claiming implementation-specific equations.
+- [ ] Execute and document continuous, imported, and rough-height examples if the book is to claim these examples are empirically validated.
+- [ ] Render this chapter with the installed MkDocs theme and visually inspect captions, math, and image widths.
+
+### 3.15.5 Reader exercise: reproduce the Plot 005 interpretation
+
+After running the random circular clipping and managed `plots-run` commands in §§3.3 and 3.9, open `ALS_plots/Plot_005/Clip_Plot_005.json`. Check the plot ID, `point_extent`, `core_geometry`, `buffer_m`, `core_points`, and `points_written`. Confirm that `plots_manifest.json` identifies this plot and its LAZ file. Next compare Figures 3.1–3.3: explain the difference between absolute elevation, ground class, and normalized height. Finally examine the terrain, structure, vertical-layer, and geometry figures presented once in their respective sections and answer:
+
+1. Where are the steepest cells in Plot 005, and do they correspond to high or low TPI?
+2. Which cells have the tallest returns? Do they also have high canopy cover?
+3. Where is vertical diversity high or low, and does point density support that interpretation?
+4. Do linearity and planarity maps describe the same spatial features?
+5. Which findings are constrained by the 15 m core boundary or the available return density?
+
+Use the companion CSV for numeric range checks, and do **not** assume that colors can be compared across metrics without reading each legend. The exercise deliberately uses the **same Plot 005** throughout.
+
+## 3.16 Summary and transition
+
+FAST-GIS turns spatially extensive ALS/ULS/TLS surveys into reproducible, machine-readable plot collections. The principal scientific safeguards are coverage-aware selection, explicit projected coordinates, separate core and buffer geometries, complete per-plot provenance, and managed downstream product publication. Plot 005 demonstrates how ground-classified and normalized points can support DEM/DSM/CHM surfaces, terrain metrics, and detailed vertical/geometric forest structure. The next chapter develops the ground-classification algorithm and its sensor-specific behavior in detail.
+
+
+## 3.17 Literature foundations and metric definitions
+
+The purpose of the references below is to explain **scientific foundations and interpretation**. A citation to an established algorithm is not a claim that FAST-GC copied that algorithm. Implementation-specific definitions below were checked against the bundled `FAST-GC/src/fastgc/structure.py` and `FAST-GC/src/fastgc/gis/gis_cli.py` source snapshot; terrain citations provide context, and the exact terrain kernels must be checked separately before describing an individual definition as FAST-GC-specific.
+
+### 3.17.1 Reproducible metric definitions in FAST_STRUCTURE
+
+The following metrics use height-normalized LiDAR returns. The source implementation distinguishes all valid returns from vegetation returns selected using a configured minimum height threshold. Vertical metrics divide the height profile into intervals and describe the distribution of returns among those intervals.
+
+| FAST_STRUCTURE metric | Implementation-specific definition | Output and interpretive use | Literature basis |
+|---|---|---|---|
+| `canopy_cover` | Proportion of all valid returns exceeding the canopy-height threshold. | Fraction of all finite returns exceeding canopy threshold; **return-based cover proxy**, not independently calibrated crown area | [R3], [R4] |
+| `n_points_all` | Number of all valid returns in a raster cell. | All-point support per cell | [R4] |
+| `n_points` | Number of returns meeting the minimum vegetation-height threshold. | Vegetation-height point support | [R4] |
+| `point_density` | Number of eligible vegetation returns per square metre. | Vegetation returns/m² | [R4] |
+| `z_mean` | Average normalized vegetation-return height. | Mean vegetation-return height, m | [R4] |
+| `z_sd` | Population standard deviation of normalized vegetation-return heights. | Height variability, m | [R4] |
+| `z_p50`, `z_p95`, `z_p99` | `np.percentile` of vegetation heights | Median, upper-canopy and near-maximum return heights, m | [R4] |
+| `vertical_entropy` = `FHD` | Shannon diversity of LiDAR returns distributed across occupied vertical height intervals. | Shannon entropy of occupied height bins | [R1], [R2], [R3] |
+| `vertical_evenness` = `VCI` | Vertical entropy normalized by the number of occupied height intervals. | **Normalized by occupied-bin count**, not total possible bins | [R1], [R2] |
+| `vertical_richness` | Count of vertical height intervals containing at least one return. | Number of occupied height bins | [R2], [R3] |
+| `vertical_effective_layers` | Effective number of occupied height layers derived from Shannon entropy. | Entropy-equivalent number of height layers | [R1], [R2] |
+| `vertical_simpson` | Diversity of returns among height intervals, using a Simpson-type index. | Vertical diversity; 0 for one occupied layer | [R2] |
+| `vertical_dominance` | Largest proportion of returns concentrated in one occupied height interval. | Fraction in the dominant occupied height bin | [R2] |
+| `vertical_occupancy_fraction` | Proportion of height intervals occupied between the lowest and highest occupied intervals. | Fraction of within-profile bins containing returns | [R2] |
+| `vertical_gap_count` | Count of **internal** empty-bin runs between first/last occupied bins | Number of internal vertical discontinuities | [R2], [R3] |
+| `vertical_gap_fraction` | Proportion of empty intervals within the occupied vertical span. | Within-profile vertical emptiness | [R2] |
+| `max_vertical_gap_m` | Height in metres of the longest internal empty interval sequence. | Maximum vertical discontinuity, m | [R2] |
+| `first_return_fraction` | Fraction of vegetation points whose `return_number==1` | First-return share of vegetation returns | [R4] |
+| `multi_return_fraction` | Fraction of vegetation points whose `return_number>1` | Later-return share; **not** fraction of pulses producing multiple returns | [R4] |
+| `z_skewness` | Third central moment / population SD³; 0 for zero SD | Asymmetry of height distribution | [R4] |
+| `z_kurtosis` | Fourth central moment / population SD⁴ minus 3; 0 for zero SD | **Excess** kurtosis of heights | [R4] |
+
+**Important correction to common interpretations:** `VCI` in this implementation is the Shannon entropy normalized by the logarithm of **occupied** vertical bins, and `multi_return_fraction` is computed as the proportion of points with `return_number>1`. It should not be described as the fraction of pulses that produced multiple returns. `canopy_cover` is return-based, so it should not be equated with field-measured crown projection without calibration.
+
+### 3.17.2 Three-dimensional point-distribution descriptors
+
+FAST_STRUCTURE computes **robust weighted covariance** within eligible raster cells. It uses a coordinate median and distance-based robust weights to reduce the influence of unusually distant points. Covariance descriptors summarize the spread of points along three principal spatial directions; they do not by themselves identify biological classes.
+
+| Metric | Implementation-specific definition | Interpretation | Literature |
+|---|---|---|---|
+| `linearity` | Extent to which points follow one principal spatial direction. | Line-like local 3D arrangement | [R8] |
+| `planarity` | Extent to which points occupy a locally planar arrangement. | Planar arrangement | [R8] |
+| `sphericity` | Extent to which local points are distributed similarly across three spatial directions. | Isotropic / volumetric spread | [R8] |
+| `anisotropy` | Strength of directional differences in local point geometry. | Directional imbalance | [R8] |
+| `omnivariance` | Combined spread of the local point distribution along three principal directions. | Overall covariance-volume scale; **units depend on eigenvalue units** | [R8] |
+| `surface_variation` | Relative contribution of the smallest covariance eigenvalue, indicating deviation from planarity. | Local departure from planarity | [R8] |
+| `eigenentropy` | Diversity of normalized covariance eigenvalues; describes geometric disorder. | Distribution of normalized covariance eigenvalues | [R1], [R8] |
+| `normal_inclination_deg` | Inclination of local fitted normal from vertical, degrees | Inclination of local fitted normal from vertical, degrees | [R8] |
+
+These descriptors summarize the spatial arrangement of the *returns in the cell*. They are **not validated biological class probabilities** for stems, branches, or leaves.
+
+### 3.17.3 Terrain, height surfaces and sampling: scientific context
+
+| Bundle | Scientific foundation | How to interpret Plot 005 | Reference |
+|---|---|---|---|
+| Ground classification and DEM | Distinguish terrain returns from vegetation/objects, then interpolate ground elevations | Terrain interpolation affects every normalized height | [R5] |
+| DSM, CHM, individual-tree detection | Canopy surface and local-maxima approaches for tree heights | CHM peaks are not automatically a one-to-one census of trees | [R6], [R7] |
+| Terrain slope, aspect, curvature | DEM derivatives and scale-sensitive terrain analysis | Interpret at cell and neighborhood scales; avoid extrapolating beyond core | [R9] |
+| TRI | Neighbor-elevation ruggedness index | High TRI indicates more local terrain heterogeneity, dependent on window definition | [R10] |
+| TPI | Elevation relative to surrounding neighborhood | Positive and negative values indicate local highs and lows, not absolute altitude | [R9] |
+| Flow direction and contributing area | Grid-based drainage routing | A clipped 15 m plot truncates upstream contributions; compute hydrology on a larger DEM first | [R11] |
+| Foliage height distribution | Vertical foliage profiles and LiDAR canopy structure | FHD describes return distribution, not directly measured leaf area | [R2], [R3] |
+| Plot extraction and visual inspection | LiDAR sample clipping, interactive point-cloud analysis and plot statistics | A buffered point-cloud sample is not identical to the inventory core | [R4] |
+
+### 3.17.4 Dataset–figure–command traceability
+
+| Evidence | Plot 005 product | Figure group | Command that generates the product family | Evidence status |
+|---|---|---|---|---|
+| `Plot_005.laz`, `Clip_Plot_005.json` | Buffered clip, core geometry | Figures 3.1–3.3 | `fastgc gis --sampling random ...` (§3.3) | Plot 005 metadata examined |
+| Classified plot LAS | `FAST_GC` | Figures 3.1–3.2 | `fastgc --workflow plots-run ... --products FAST_GC` (§3.9) | Supplied point-cloud output |
+| Normalized plot LAS | `FAST_NORMALIZED` | Figure 3.3 | Expanded command (§3.10.1) | Supplied point-cloud output |
+| Standalone GeoTIFFs | Surface elevation / canopy height | Figure 3.4 | Expanded command (§3.10.1) | **DSM/CHM file identities provisional** |
+| `FAST_TERRAIN.zip` | Slope, aspect, hillshade, roughness, TRI, TPI | Figure 3.5 | Expanded command (§3.10.1) | Six supplied terrain rasters |
+| `FAST_STRUCTURE.zip` | Core metrics, vertical metrics, geometry | Figures 3.6–3.8 | Expanded command (§3.10.1) | 36 supplied structure rasters |
+| Other sampling techniques | Random/continuous/rough-height/imported | Schematic shape and sampling diagrams | Commands in §§3.4–3.6 | Source-supported examples, not benchmarked outputs |
+
+## 3.18 References
+
+The following sources were checked against publisher, professional-society, university, or institutional records. They support scientific interpretation and historical context; **they are not automatic evidence that FAST-GC uses their exact algorithms**.
+
+1. **[R1]** Shannon, C. E., and Weaver, W. (1949). *The Mathematical Theory of Communication*. University of Illinois Press. [Bibliographic record](https://www.ncbi.nlm.nih.gov/nlmcatalog/101639117).
+2. **[R2]** MacArthur, R. H., and Horn, H. S. (1969). Foliage profile by vertical measurements. *Ecology*, **50**(5), 802–804. https://doi.org/10.2307/1933693.
+3. **[R3]** Lefsky, M. A., Cohen, W. B., Acker, S. A., Parker, G. G., Spies, T. A., and Harding, D. (1999). Lidar remote sensing of the canopy structure and biophysical properties of Douglas-fir western hemlock forests. *Remote Sensing of Environment*, **70**(3), 339–361. [Publisher article](https://www.sciencedirect.com/science/article/pii/S0034425799000528).
+4. **[R4]** McGaughey, R. J. *FUSION/LDV: LiDAR Data Analysis and Visualization Software*. USDA Forest Service, Pacific Northwest Research Station. [Official software overview](https://forsys.sefs.uw.edu/FUSION/fusion_overview.html). Software documentation; no journal publication date asserted.
+5. **[R5]** Zhang, K., Chen, S.-C., Whitman, D., Shyu, M.-L., Yan, J., and Zhang, C. (2003). A progressive morphological filter for removing nonground measurements from airborne LIDAR data. *IEEE Transactions on Geoscience and Remote Sensing*, **41**(4), 872–882. https://doi.org/10.1109/TGRS.2003.810682.
+6. **[R6]** Popescu, S. C., Wynne, R. H., and Nelson, R. F. (2002). Estimating plot-level tree heights with lidar: local filtering with a canopy-height based variable window size. *Computers and Electronics in Agriculture*, **37**(1–3), 71–95. https://doi.org/10.1016/S0168-1699(02)00121-7.
+7. **[R7]** Popescu, S. C., and Wynne, R. H. (2004). Seeing the trees in the forest: using lidar and multispectral data fusion with local filtering and variable window size for estimating tree height. *Photogrammetric Engineering & Remote Sensing*, **70**(5), 589–604. https://doi.org/10.14358/PERS.70.5.589.
+8. **[R8]** Weinmann, M., Jutzi, B., Hinz, S., and Mallet, C. (2015). Semantic point cloud interpretation based on optimal neighborhoods, relevant features and efficient classifiers. *ISPRS Journal of Photogrammetry and Remote Sensing*, **105**, 286–304. [Bibliographic search](https://scholar.google.com/scholar?q=Weinmann+Jutzi+Hinz+Mallet+2015+semantic+point+cloud+interpretation).
+9. **[R9]** Wilson, J. P., and Gallant, J. C. (eds.) (2000). *Terrain Analysis: Principles and Applications*. John Wiley & Sons. ISBN 9780471321880. [Publisher](https://www.wiley-vch.de/en/areas-interest/natural-sciences/geography-11ge/gis-remote-sensing-cartography-11ge6/terrain-analysis-978-0-471-32188-0).
+10. **[R10]** Riley, S. J., DeGloria, S. D., and Elliot, R. (1999). A terrain ruggedness index that quantifies topographic heterogeneity. *Intermountain Journal of Sciences*, **5**(1–4), 23–27. [Journal record](https://arc.lib.montana.edu/ojs/index.php/IJS/article/view/2914).
+11. **[R11]** Tarboton, D. G. (1997). A new method for the determination of flow directions and upslope areas in grid digital elevation models. *Water Resources Research*, **33**(2), 309–319. https://doi.org/10.1029/96WR03137.
+

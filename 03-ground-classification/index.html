@@ -1,0 +1,2078 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Practical FAST-GC LiDAR processing guide">
+      
+      
+      
+      
+        <link rel="prev" href="../02-fast-gis/">
+      
+      
+        <link rel="next" href="../04-products/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Chapter 4: Ground Classification - FAST-GC Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/fastgc-book.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-4-fast-gc-ground-classification-core-products-and-wall-to-wall-lidar-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FAST-GC Book" class="md-header__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FAST-GC Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 4: Ground Classification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    FAST-GC Book
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1: Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Cross-Platform Installation, Configuration, and Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-fast-gis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3: FAST-GIS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4: Ground Classification
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4: Ground Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#41-from-classified-points-to-continuous-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 From classified points to continuous maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#42-processing-modes-and-their-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Processing modes and their use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#43-full-survey-als-example-br01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Full-survey ALS example: BR01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3 Full-survey ALS example: BR01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#430-before-running-verify-the-active-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.0 Before running: verify the active CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#431-fast_gc-only-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.1 FAST_GC-only baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#432-standard-end-to-end-command-ground-dem-normalization-dsm-and-chm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.2 Standard end-to-end command: ground, DEM, normalization, DSM, and CHM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#44-tiled-mapping-footprint-buffers-merge-and-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Tiled mapping: footprint, buffers, merge, and performance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Tiled mapping: footprint, buffers, merge, and performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#441-previously-measured-site-5-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4.1 Previously measured Site 5 benchmark
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#442-multi-file-and-batch-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4.2 Multi-file and batch inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#45-als-uls-and-tls-operational-distinctions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 ALS, ULS, and TLS: operational distinctions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 ALS, ULS, and TLS: operational distinctions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#451-sensor-specific-command-patterns-and-initial-tile-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5.1 Sensor-specific command patterns and initial tile settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#46-dem-resolution-and-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 DEM: resolution and interpolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#47-chm-variants-and-percentile-families" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 CHM variants and percentile families
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.7 CHM variants and percentile families">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fareed-2026-height-selective-chm-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fareed (2026): height-selective CHM reconstruction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chm-variants-two-column-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CHM variants — two-column comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#471-measured-raster-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7.1 Measured raster summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#48-chm-based-crown-segmentation-and-individual-tree-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8 CHM-based crown segmentation and individual-tree detection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.8 CHM-based crown segmentation and individual-tree detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#481-methods-exposed-by-fast-gc-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.1 Methods exposed by FAST-GC 0.2.1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#482-why-use-the-merged-chm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.2 Why use the merged CHM?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#483-fast_itd-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.3 FAST_ITD deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#49-fast_treeclouds-from-crown-labels-to-individual-tree-las" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9 FAST_TREECLOUDS: from crown labels to individual-tree LAS
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.9 FAST_TREECLOUDS: from crown labels to individual-tree LAS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#491-las-attributes-and-tree-cloud-products" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.1 LAS attributes and tree-cloud products
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#492-interpreting-segmentation-and-validating-tree-clouds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.2 Interpreting segmentation and validating tree clouds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#493-installation-and-release-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.3 Installation and release reproducibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#494-future-software-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.4 Future software validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#410-recovering-products-without-reclassifying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.10 Recovering products without reclassifying
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#411-quality-control-and-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Quality control and troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#412-reproducibility-and-next-chapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.12 Reproducibility and next chapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.12 Reproducibility and next chapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selected-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selected references
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-products/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 5: Products
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 6: Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 7: Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-4-fast-gc-ground-classification-core-products-and-wall-to-wall-lidar-mapping">Chapter 4 — FAST-GC ground classification, core products, and wall-to-wall LiDAR mapping</h1>
+<p><strong>Study design:</strong> a complete airborne laser scanning (ALS) survey for measured examples; operational workflows also apply to uncrewed laser scanning (ULS) and terrestrial laser scanning (TLS), with sensor-specific tuning.
+<strong>Scope:</strong> reproducible processing and deliverables, <strong>not</strong> the mathematical ground-filtering algorithm. Hydrological and terrain analysis are covered in the next chapter.</p>
+<h2 id="41-from-classified-points-to-continuous-maps">4.1 From classified points to continuous maps</h2>
+<p>FAST-GC processes LAS/LAZ surveys through ground classification, optional height normalization, and raster surface generation. The <em>core</em> output is a classified point cloud; DEM, DSM, normalized cloud, and CHM are direct products of the processing pipeline. Terrain derivatives, hydrology, canopy structure, and tree-level analysis are downstream applications, not synonyms for ground classification.</p>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Meaning</th>
+<th>Typical use</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FAST_GC</code></td>
+<td>Ground/non-ground classified point cloud</td>
+<td>Terrain support, quality control</td>
+<td>Preserve original survey metadata and inspect class counts</td>
+</tr>
+<tr>
+<td><code>FAST_DEM</code></td>
+<td>Digital Elevation Model: ground elevation</td>
+<td>Terrain reference</td>
+<td>A grid's no-data cells are not zero elevation</td>
+</tr>
+<tr>
+<td><code>FAST_DSM</code></td>
+<td>Digital Surface Model: upper observed surface</td>
+<td>Surface/canopy representation</td>
+<td>Includes buildings and other above-ground objects where present</td>
+</tr>
+<tr>
+<td><code>FAST_NORMALIZED</code></td>
+<td>Point cloud expressed as height relative to DEM</td>
+<td>Canopy and vertical-profile analysis</td>
+<td>Height depends on DEM quality and sampling</td>
+</tr>
+<tr>
+<td><code>FAST_CHM</code></td>
+<td>Canopy Height Model: modeled height above terrain</td>
+<td>Canopy surface and tree applications</td>
+<td>Different reconstruction methods may give different surfaces</td>
+</tr>
+<tr>
+<td><code>FAST_TERRAIN</code>, <code>FAST_STRUCTURE</code>, etc.</td>
+<td>Downstream analytical products</td>
+<td>Terrain/hydrology/forest characterization</td>
+<td>Covered separately to avoid duplication</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Wall-to-wall</strong> refers to a spatially continuous mapped study footprint assembled from tiled processing. It does <strong>not</strong> mean every raster cell must contain an observation: no-data gaps and sparse point support remain possible. The processing buffer provides neighboring context; the intended tile core must govern the final mosaic to avoid duplicate edge observations.</p>
+<h2 id="42-processing-modes-and-their-use">4.2 Processing modes and their use</h2>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>Intended operation</th>
+<th>Appropriate situation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run</code></td>
+<td>Process an input directly</td>
+<td>Single, manageable file without tiling</td>
+</tr>
+<tr>
+<td><code>tile-only</code></td>
+<td>Generate reusable spatial tiles</td>
+<td>Inspect coverage or stage later processing</td>
+</tr>
+<tr>
+<td><code>tile-run</code></td>
+<td>Tile and process</td>
+<td>Keep processed tiles for inspection or later merge</td>
+</tr>
+<tr>
+<td><code>tile-run-merge</code></td>
+<td>Tile, process, and merge</td>
+<td>Standard wall-to-wall survey workflow</td>
+</tr>
+<tr>
+<td><code>merge</code></td>
+<td>Merge existing processed tiles</td>
+<td>Complete an interrupted or deliberately staged workflow</td>
+</tr>
+<tr>
+<td><code>derive-only</code></td>
+<td>Derive products from an existing processed root</td>
+<td>Avoid redoing successful ground classification</td>
+</tr>
+</tbody>
+</table>
+<p>A workflow is <strong>not</strong> a product. For example, <code>tile-run-merge</code> can request <code>FAST_GC</code> alone for a benchmark or request classification, DEM, normalization, DSM, and multiple CHMs in one execution. Products are requested with <code>--products</code>; CHM variants are specified with <code>--chm_methods</code>.</p>
+<h2 id="43-full-survey-als-example-br01">4.3 Full-survey ALS example: BR01</h2>
+<p>The demonstration uses the <em>complete</em> BR01 ALS file, not the circular Plot 005 subset from Chapter 3. The file was provided and processed on Windows:</p>
+<p><code>G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz</code></p>
+<h3 id="430-before-running-verify-the-active-cli">4.3.0 Before running: verify the active CLI</h3>
+<p>Run in <strong>Windows PowerShell</strong> (not CMD or Python). The backtick <code>`</code> must be the final character on each continued line: <strong>no spaces after it</strong>. Paste the complete command block, rather than typing <code>&gt;&gt;</code> prompts shown by PowerShell. Use <code>conda activate fastgc</code> to select the intended environment.</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc</span>
+<span class="n">python</span> <span class="n">-c</span> <span class="s2">"import fastgc; print(fastgc.__file__)"</span>
+<span class="n">fastgc</span> <span class="p">-</span><span class="n">-help</span>
+</code></pre></div>
+<p>Check that the help lists <code>tile-run-merge</code>, <code>derive-only</code>, and the exact options in the chosen command. These preflight commands do not process LiDAR. The FAST-GC source archive used to review these examples is dated <strong>2026-10-08</strong>; a later installed release may differ. In particular, the successful BR01 individual-tree export depended on local fixes to the installed <code>treeclouds.py</code> that have <strong>not yet been established as part of the public release</strong>.</p>
+<h3 id="431-fast_gc-only-baseline">4.3.1 FAST_GC-only baseline</h3>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\BR01_FASTGC_140m"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">140</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">4</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">8</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--in_path</code></td>
+<td>LAS/LAZ file or input directory</td>
+<td>Must exist; this path is specific to the BR01 workstation</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Output root</td>
+<td>Use a new directory for every independent benchmark</td>
+</tr>
+<tr>
+<td><code>--sensor_mode ALS</code></td>
+<td>Select airborne sensor pathway</td>
+<td>Use <code>ULS</code> or <code>TLS</code> only for the corresponding survey</td>
+</tr>
+<tr>
+<td><code>--workflow tile-run-merge</code></td>
+<td>Create, classify, and merge tiles</td>
+<td>Appropriate for continuous survey mapping</td>
+</tr>
+<tr>
+<td><code>--products FAST_GC</code></td>
+<td>Classification only</td>
+<td>Isolates ground-processing runtime</td>
+</tr>
+<tr>
+<td><code>--tile_size_m 140</code></td>
+<td>Tile width in metres</td>
+<td>Previously benchmarked; not a universal optimum</td>
+</tr>
+<tr>
+<td><code>--buffer_m 4</code></td>
+<td>Processing context around each tile, metres</td>
+<td>Evaluate seams and point duplication at tile edges</td>
+</tr>
+<tr>
+<td><code>--jobs 8</code></td>
+<td>Parallel tile workers</td>
+<td>Adjust to available memory and CPU; default <code>0</code> auto-selects workers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Observed result:</strong> 9/9 tiles classified and merged, 12,531,911 points reported in merged FAST_GC output, and <strong>7 min 23.04 s</strong> end-to-end. The reported tiling stage took 26.97 s and merge 20.72 s. These are processing metrics, <strong>not</strong> ground-classification accuracy measurements.</p>
+<h3 id="432-standard-end-to-end-command-ground-dem-normalization-dsm-and-chm">4.3.2 Standard end-to-end command: ground, DEM, normalization, DSM, and CHM</h3>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\BR01_ALL_PRODUCTS"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_NORMALIZED</span> <span class="n">FAST_DSM</span> <span class="n">FAST_CHM</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">140</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">4</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">8</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-dem_method</span> <span class="n">min</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-chm_methods</span> <span class="n">p2r</span> <span class="n">p99</span> <span class="n">tin</span> <span class="n">pitfree</span> <span class="n">spikefree</span> <span class="p">`</span>
+    <span class="n">percentile</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">pct</span><span class="p">=</span><span class="n">5</span> <span class="p">`</span>
+    <span class="n">percentile_top</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">low</span><span class="p">=</span><span class="n">5</span> <span class="p">`</span>
+    <span class="n">percentile_band</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">low</span><span class="p">=</span><span class="n">2</span><span class="p">:</span><span class="n">high</span><span class="p">=</span><span class="n">8</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--products</code></td>
+<td>Requests point-cloud and raster deliverables</td>
+<td><code>FAST_NORMALIZED</code> requires terrain support; DSM is included for spike-free routing</td>
+</tr>
+<tr>
+<td><code>--grid_res 1.0</code></td>
+<td>Raster cell size, in metres</td>
+<td>1 m used for all uploaded BR01 rasters; smaller cells need more point support</td>
+</tr>
+<tr>
+<td><code>--dem_method min</code></td>
+<td>DEM grid method</td>
+<td>Minimum classified ground elevation; alternatives: <code>max</code>, <code>mean</code>, <code>nearest</code>, <code>idw</code></td>
+</tr>
+<tr>
+<td><code>--chm_methods</code></td>
+<td>Multiple CHM outputs in one run</td>
+<td>The six supported plain multi-method names are <code>p2r</code>, <code>p99</code>, <code>tin</code>, <code>pitfree</code>, <code>spikefree</code>, <code>csf_chm</code>; CSF is omitted here</td>
+</tr>
+<tr>
+<td><code>percentile:pitfree:pct=5</code></td>
+<td>Keep normalized points at or below 5 m, then apply pit-free reconstruction</td>
+<td>Height-limited surface; <code>pct=5</code> is <strong>not</strong> a 5th-percentile statistic in this version</td>
+</tr>
+<tr>
+<td><code>percentile_top:pitfree:low=5</code></td>
+<td>Keep points at or above 5 m, then apply pit-free reconstruction</td>
+<td>Useful for upper-canopy support; sparse gaps may remain</td>
+</tr>
+<tr>
+<td><code>percentile_band:pitfree:low=2:high=8</code></td>
+<td>Keep points between 2 and 8 m, then apply pit-free reconstruction</td>
+<td>Height-stratum product; never interpret as full canopy height</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CLI compatibility note.</strong> The installed CLI advertises <code>adaptive_pitfree</code> for <code>--chm_method</code>, but the multi-target parser rejects it under <code>--chm_methods</code>. It is excluded from the runnable example. Do not include <code>adaptive_pitfree</code> in the multi-method example until its parser support is confirmed. FAST-GC should ideally validate all target names before starting expensive work.</p>
+<p><strong>Command preconditions:</strong> activate the <code>fastgc</code> environment, verify the input path exists, and choose a new output directory. These examples are for the specific BR01 path and should not be copied unchanged to another computer.</p>
+<h2 id="44-tiled-mapping-footprint-buffers-merge-and-performance">4.4 Tiled mapping: footprint, buffers, merge, and performance</h2>
+<p>The operational sequence is <strong>source files → tiles with processing context → classified tiles → optional surface products → merged survey products</strong>. For contiguous survey tiles, merging is necessary to provide a single study-area deliverable. Tile processing can be retained when individual tile quality control or staged recomputation is required.</p>
+<p>The nominal tile size affects the number of tasks; the buffer affects the volume of duplicated processing context. Small tiles may increase task-launch and buffer overhead; large tiles may increase peak per-worker memory. More workers do not guarantee higher throughput when memory bandwidth or disk access becomes limiting.</p>
+<h3 id="441-previously-measured-site-5-benchmark">4.4.1 Previously measured Site 5 benchmark</h3>
+<p>Site 5 is a separate ALS survey, approximately 500 × 500 m with about 3.5 million points. It was used to investigate performance and tiling on Windows 11. These figures should not be treated as direct comparisons with BR01 because survey size, point distribution, and processing context differ.</p>
+<table>
+<thead>
+<tr>
+<th>Tile width</th>
+<th>Buffer</th>
+<th>Workers</th>
+<th>Tiles</th>
+<th>Elapsed time</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50 m</td>
+<td>3 m</td>
+<td>8</td>
+<td>100</td>
+<td>830.39 s (13.84 min)</td>
+<td>Higher number of small tasks</td>
+</tr>
+<tr>
+<td>140 m</td>
+<td>4 m</td>
+<td>8</td>
+<td>16</td>
+<td>600.87 s (10.01 min)</td>
+<td>Faster of these two measured runs</td>
+</tr>
+<tr>
+<td>140 m</td>
+<td>4 m</td>
+<td>6</td>
+<td>16</td>
+<td>Approximately 10.5 min</td>
+<td>Competitive alternative</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benchmark reporting:</strong> state the operating system, FAST-GC version, CPU/RAM, tile width, buffer, workers, input point count, products, and whether the clock covers tiling, processing, and merging. Treat Windows and WSL2 results as different environments. The values above summarize earlier user-run benchmark records; raw logs should be retained alongside the final book for independent verification.</p>
+<h3 id="442-multi-file-and-batch-inputs">4.4.2 Multi-file and batch inputs</h3>
+<p>The CLI accepts a <strong>directory</strong> through <code>--in_path</code>; <code>--recursive</code> enables nested-directory scanning. A directory input is useful when an acquisition is delivered as several adjacent LAS/LAZ files. First check that all files share a compatible horizontal coordinate reference system, elevation units, and survey metadata. A directory of unrelated surveys should not be treated as one contiguous wall-to-wall area.</p>
+<p>The following example is intentionally a <em>template</em>, not an executable BR01 command; it requires the reader to substitute a real existing directory:</p>
+<div class="highlight"><pre><span></span><code><span class="c"># Replace this path with a directory containing compatible LAS/LAZ files.</span>
+<span class="nv">$surveyFolder</span> <span class="p">=</span> <span class="s2">"C:\data\ALS\survey"</span>
+<span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"$surveyFolder"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"$surveyFolder\FASTGC_WALL_TO_WALL"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_NORMALIZED</span> <span class="n">FAST_CHM</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">140</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">4</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">8</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-dem_method</span> <span class="n">min</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$surveyFolder</code></td>
+<td>Validated source directory</td>
+<td>Do not place unrelated acquisitions or incompatible CRSs together</td>
+</tr>
+<tr>
+<td><code>--in_path</code></td>
+<td>Directory of LAS/LAZ files</td>
+<td>Use <code>--recursive</code> only if nested folders should be included</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Separate output location</td>
+<td>Prefer an output outside the input tree when recursive scanning is enabled</td>
+</tr>
+<tr>
+<td><code>--workflow tile-run-merge</code></td>
+<td>Survey-wide tiled processing and merge</td>
+<td>Inspect the tile manifest and spatial coverage before interpreting a merged map</td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Requested deliverables</td>
+<td>This batch example uses the default CHM method unless overridden</td>
+</tr>
+</tbody>
+</table>
+<h2 id="45-als-uls-and-tls-operational-distinctions">4.5 ALS, ULS, and TLS: operational distinctions</h2>
+<table>
+<thead>
+<tr>
+<th>Consideration</th>
+<th>ALS</th>
+<th>ULS</th>
+<th>TLS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acquisition geometry</td>
+<td>Top-down airborne returns</td>
+<td>Low-altitude airborne returns, often denser and more variable</td>
+<td>Side-looking and multi-scan ground perspective</td>
+</tr>
+<tr>
+<td>Ground support</td>
+<td>Often spatially distributed beneath canopy gaps</td>
+<td>Highly dependent on flight pattern and canopy penetration</td>
+<td>Can be abundant near scanner but occluded behind vegetation and objects</td>
+</tr>
+<tr>
+<td>Tiling</td>
+<td>Survey-scale tiling generally appropriate</td>
+<td>Adapt tile size to density and flight overlap</td>
+<td>Start conservatively with dense scans; watch memory and per-tile point counts</td>
+</tr>
+<tr>
+<td>Buffer</td>
+<td>Required to stabilize tile-edge context</td>
+<td>Evaluate across dense flight strips and edges</td>
+<td>Consider scan occlusion and local neighborhood support</td>
+</tr>
+<tr>
+<td>DEM/CHM</td>
+<td>Typical forest and terrain products</td>
+<td>Suitable where ground coverage supports normalization</td>
+<td>Surface rasters may have severe occlusion/voids; inspect rather than assume full coverage</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>Ground control / independently labeled points</td>
+<td>Ground control and flight-strip consistency</td>
+<td>Scanner geometry, scan positions, and independent terrain reference</td>
+</tr>
+</tbody>
+</table>
+<p>The same <strong>CLI interface</strong> selects the mode with <code>--sensor_mode ALS</code>, <code>ULS</code>, or <code>TLS</code>. The best tile size, worker count, and buffer are <strong>not transferable defaults</strong>. For TLS especially, dense interior tiles may be slower or memory-bound. Do not imply that an ALS runtime benchmark predicts TLS performance.</p>
+<h3 id="451-sensor-specific-command-patterns-and-initial-tile-settings">4.5.1 Sensor-specific command patterns and initial tile settings</h3>
+<p>These are <strong>preflight templates, not benchmark-validated ULS/TLS commands</strong>. Confirm the installed FAST-GC CLI version and inspect the source LAS/LAZ before running. Use a dedicated output folder outside the input folder. The numbers are conservative <em>trial configurations</em>, not fixed recommendations; record the point count, area, and maximum per-tile point density before tuning.</p>
+<table>
+<thead>
+<tr>
+<th>Sensor</th>
+<th style="text-align: right;">Initial tile width</th>
+<th style="text-align: right;">Buffer</th>
+<th style="text-align: right;">Workers</th>
+<th>Why start here?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ALS</td>
+<td style="text-align: right;">140 m</td>
+<td style="text-align: right;">4 m</td>
+<td style="text-align: right;">6–8</td>
+<td>BR01 and Site 5 provide a measured ALS reference; reduce workers if RAM is limited</td>
+</tr>
+<tr>
+<td>ULS</td>
+<td style="text-align: right;">50–100 m</td>
+<td style="text-align: right;">5 m</td>
+<td style="text-align: right;">2–4</td>
+<td>Denser acquisition and variable flight overlap may increase per-tile memory</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td style="text-align: right;">10–25 m</td>
+<td style="text-align: right;">2–3 m</td>
+<td style="text-align: right;">1–2</td>
+<td>Very dense near-scanner points can make even small tiles expensive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ULS — start with ground classification, DEM, normalization, and CHM</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nv">$source</span> <span class="p">=</span> <span class="s2">"C:\data\ULS\survey.laz"</span>
+<span class="nv">$output</span> <span class="p">=</span> <span class="s2">"C:\data\FASTGC_RESULTS\ULS"</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="n">-LiteralPath</span> <span class="nv">$source</span> <span class="n">-PathType</span> <span class="n">Leaf</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="s2">"ULS input LAS/LAZ does not exist: $source"</span>
+<span class="p">}</span>
+
+<span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"$source"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"$output"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ULS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_NORMALIZED</span> <span class="n">FAST_CHM</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">75</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">5</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-chm_method</span> <span class="n">pitfree</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">2</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$source</code>, <code>--in_path</code></td>
+<td>Source LAS/LAZ file</td>
+<td>Replace example path; script checks existence</td>
+</tr>
+<tr>
+<td><code>$output</code>, <code>--out_dir</code></td>
+<td>Dedicated output root</td>
+<td>Keep separate from input and other experiments</td>
+</tr>
+<tr>
+<td><code>--sensor_mode ULS</code></td>
+<td>ULS processing pathway</td>
+<td>Only use for ULS acquisitions</td>
+</tr>
+<tr>
+<td><code>--workflow tile-run-merge</code></td>
+<td>Tile, process, merge</td>
+<td>Inspect tile count, merged LAS, and raster seams</td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Ground, DEM, normalized LAS, CHM</td>
+<td>Check terrain quality before interpreting canopy height</td>
+</tr>
+<tr>
+<td><code>--tile_size_m 75</code></td>
+<td>75 m processing tile</td>
+<td>Trial setting; reduce for high point density</td>
+</tr>
+<tr>
+<td><code>--buffer_m 5</code></td>
+<td>5 m neighborhood context</td>
+<td>Check edge effects and overlap</td>
+</tr>
+<tr>
+<td><code>--grid_res 1.0</code></td>
+<td>1 m output raster cells</td>
+<td>Adjust to observed ground support</td>
+</tr>
+<tr>
+<td><code>--chm_method pitfree</code></td>
+<td>Primary CHM reconstruction</td>
+<td>Produces a single CHM variant</td>
+</tr>
+<tr>
+<td><code>--jobs 2</code></td>
+<td>Two concurrent workers</td>
+<td>Increase only after monitoring peak memory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TLS — start with ground classification, DEM, and normalization</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nv">$source</span> <span class="p">=</span> <span class="s2">"C:\data\TLS\survey.las"</span>
+<span class="nv">$output</span> <span class="p">=</span> <span class="s2">"C:\data\FASTGC_RESULTS\TLS"</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="n">-LiteralPath</span> <span class="nv">$source</span> <span class="n">-PathType</span> <span class="n">Leaf</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="s2">"TLS input LAS/LAZ does not exist: $source"</span>
+<span class="p">}</span>
+
+<span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"$source"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"$output"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">TLS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_NORMALIZED</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">20</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">3</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">1</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$source</code>, <code>--in_path</code></td>
+<td>Source TLS LAS/LAZ</td>
+<td>Replace example path; script checks existence</td>
+</tr>
+<tr>
+<td><code>$output</code>, <code>--out_dir</code></td>
+<td>Dedicated TLS output directory</td>
+<td>Avoid mixing TLS and ALS outputs</td>
+</tr>
+<tr>
+<td><code>--sensor_mode TLS</code></td>
+<td>TLS-specific processing</td>
+<td>Ground may be occluded behind stems and understory</td>
+</tr>
+<tr>
+<td><code>--workflow tile-run-merge</code></td>
+<td>Tile, classify, merge</td>
+<td>Inspect tiles and coverage before downstream products</td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Ground, DEM, normalized LAS</td>
+<td>CHM omitted initially until ground and coverage are assessed</td>
+</tr>
+<tr>
+<td><code>--tile_size_m 20</code></td>
+<td>20 m processing tile</td>
+<td>Trial setting; smaller tiles may be needed for dense scans</td>
+</tr>
+<tr>
+<td><code>--buffer_m 3</code></td>
+<td>3 m processing context</td>
+<td>Inspect boundary continuity</td>
+</tr>
+<tr>
+<td><code>--grid_res 1.0</code></td>
+<td>1 m DEM grid</td>
+<td>Fine raster cells are not automatically better</td>
+</tr>
+<tr>
+<td><code>--jobs 1</code></td>
+<td>One processing worker</td>
+<td>Establish baseline peak RAM and elapsed time</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation rule:</strong> report ULS/TLS runtime only after the actual commands complete with zero failed tiles and verified merged outputs. No ULS or TLS runtime is claimed in this chapter yet.</p>
+<h2 id="46-dem-resolution-and-interpolation">4.6 DEM: resolution and interpolation</h2>
+<p>A Digital Elevation Model is an estimate of terrain elevation on a regular grid. The chosen grid spacing determines how much detail can be represented, but a fine cell size does not create ground returns where none were observed. FAST-GC 0.2.1 exposes <code>min</code>, <code>max</code>, <code>mean</code>, <code>nearest</code>, and <code>idw</code> as <code>--dem_method</code> options.</p>
+<table>
+<thead>
+<tr>
+<th>DEM method</th>
+<th>Interpretation</th>
+<th>Practical caution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min</code></td>
+<td>Minimum classified ground elevation contributing to a cell</td>
+<td>Sensitive to low outliers or misclassified points</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td>Maximum contributing ground elevation</td>
+<td>May emphasize high points in sloping cells</td>
+</tr>
+<tr>
+<td><code>mean</code></td>
+<td>Mean ground elevation</td>
+<td>Smooths within-cell variation</td>
+</tr>
+<tr>
+<td><code>nearest</code></td>
+<td>Nearest-sample interpolation</td>
+<td>Local abrupt transitions possible</td>
+</tr>
+<tr>
+<td><code>idw</code></td>
+<td>Inverse-distance-weighted interpolation</td>
+<td>Neighborhood and distance assumptions affect surfaces</td>
+</tr>
+</tbody>
+</table>
+<p>For BR01, the supplied DEM was produced at <strong>1 m</strong> using the <code>min</code> setting. To compare methods or 0.5 m, 1 m, and 2 m grids, keep the same ground-classified input and evaluate terrain artifacts, missing cells, and runtime. Those comparisons have <strong>not</strong> been measured in the supplied BR01 raster set, so no superiority ranking is claimed.</p>
+<p><a href="../assets/chapter04/br01_core_surfaces.png"><img alt="BR01 DEM, DSM, P2R CHM and pit-free CHM" src="../assets/chapter04/br01_core_surfaces.png"></a></p>
+<p><em>Figure 4.1. BR01 DEM, DSM, P2R CHM and pit-free CHM derived from the supplied GeoTIFFs. All four panels are clipped to the </em><em>same valid DSM footprint</em><em> for direct spatial comparison. DEM elevations are unchanged inside the footprint; outside cells are hidden only for visualization. Elevation and canopy-height color scales are separate. White indicates excluded or missing cells.</em></p>
+<h2 id="47-chm-variants-and-percentile-families">4.7 CHM variants and percentile families</h2>
+<p>The CHM methods reconstruct canopy height from available observations and the terrain reference. They are <strong>not interchangeable algorithms</strong>; their differences should be evaluated against point density, canopy gaps, crown boundaries, and independent canopy-height evidence.</p>
+<table>
+<thead>
+<tr>
+<th>CHM method</th>
+<th>Working interpretation</th>
+<th>Potential strengths / cautions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>p2r</code></td>
+<td>Point-to-raster canopy surface</td>
+<td>Direct and simple; can contain sampling pits</td>
+</tr>
+<tr>
+<td><code>p99</code></td>
+<td>High-percentile canopy-height surface</td>
+<td>Reduces sensitivity to isolated maxima; can suppress narrow crown peaks</td>
+</tr>
+<tr>
+<td><code>tin</code></td>
+<td>Triangulated surface</td>
+<td>Interpolates between supports; can bridge real gaps</td>
+</tr>
+<tr>
+<td><code>pitfree</code></td>
+<td>Multi-layer pit-free canopy reconstruction</td>
+<td>Can reduce pits; evaluate crown-edge smoothing and gap filling</td>
+</tr>
+<tr>
+<td><code>spikefree</code></td>
+<td>DSM-first spike-free reconstruction</td>
+<td>May reduce spikes; depends on DSM routing and ground reference</td>
+</tr>
+<tr>
+<td><code>percentile</code></td>
+<td>Fareed (2026) height-filtered canopy reconstruction: retain points at or below <code>pct</code> height</td>
+<td>This implementation's <code>pct</code> is a height threshold in metres, <strong>not</strong> a statistical percentile</td>
+</tr>
+<tr>
+<td><code>percentile_top</code></td>
+<td>Fareed (2026) upper-canopy point selection: retain points at or above <code>low</code></td>
+<td>Feed the retained upper points into a primary CHM algorithm such as <code>pitfree</code></td>
+</tr>
+<tr>
+<td><code>percentile_band</code></td>
+<td>Fareed (2026) height-band point selection: retain points between <code>low</code> and <code>high</code></td>
+<td>Reconstruct the selected stratum; it is not a full-height CHM</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fareed-2026-height-selective-chm-reconstruction">Fareed (2026): height-selective CHM reconstruction</h3>
+<p>The <strong>Fareed (2026) percentile family</strong> adds a point-selection stage <em>before</em> the primary canopy-surface reconstruction. In the supplied FAST-GC implementation, selection is performed on the point-cloud <strong>Z height</strong> (typically height-normalized canopy points); the selected points are then processed by the named primary CHM method. This distinction matters: the implementation does <strong>not</strong> calculate a statistical 5th percentile from the height distribution when the selector is written as <code>pct=5</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Selector expression</th>
+<th>Exact current selection rule</th>
+<th>Subsequent reconstruction</th>
+<th>Intended interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>percentile:pitfree:pct=5</code></td>
+<td>Keep <code>z &lt;= 5 m</code></td>
+<td>Pit-free CHM on retained points</td>
+<td>Lower-height-limited surface; canopy maxima above 5 m are excluded</td>
+</tr>
+<tr>
+<td><code>percentile_top:pitfree:low=5</code></td>
+<td>Keep <code>z &gt;= 5 m</code></td>
+<td>Pit-free CHM on retained points</td>
+<td>Upper-canopy-focused surface retaining the actual height of selected points</td>
+</tr>
+<tr>
+<td><code>percentile_band:pitfree:low=2:high=8</code></td>
+<td>Keep <code>2 m &lt;= z &lt;= 8 m</code></td>
+<td>Pit-free CHM on retained points</td>
+<td>Height-stratified surface, not whole-canopy maximum</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Algorithmic sequence:</strong> normalized canopy points → apply Fareed (2026) height selector → run primary CHM reconstruction (<code>pitfree</code> in these examples) → rasterize and merge. Thresholds refer to the Z values used by the implementation and should not be confused with quantile percentages. The terminology <em>percentile family</em> is retained as the software's method name; the threshold behavior is stated explicitly for reproducibility.</p>
+<p><code>csf_chm</code> is supported but deliberately excluded from this comparison. <code>adaptive_pitfree</code> appears in the primary CLI choices but was rejected by the installed multi-target parser; it is <strong>not</strong> listed as a working multi-target command.</p>
+<h3 id="chm-variants-two-column-comparison">CHM variants — two-column comparison</h3>
+<p>The eight BR01 CHM variants are displayed in two columns. All maps use the same 1 m grid. Most panels use a common 0–50 m color scale; the two bounded selector outputs use their own scales and must not be compared by color intensity alone.</p>
+<table>
+<tbody><tr>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/p2r.png"><img src="../assets/chapter04/chm_individual/p2r.png" alt="BR01 P2R canopy height model" width="100%"></a><p><strong>P2R</strong></p></td>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/p99.png"><img src="../assets/chapter04/chm_individual/p99.png" alt="BR01 P99 canopy height model" width="100%"></a><p><strong>P99</strong></p></td>
+</tr>
+<tr>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/tin.png"><img src="../assets/chapter04/chm_individual/tin.png" alt="BR01 TIN canopy height model" width="100%"></a><p><strong>TIN</strong></p></td>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/pitfree.png"><img src="../assets/chapter04/chm_individual/pitfree.png" alt="BR01 Pit-free canopy height model" width="100%"></a><p><strong>Pit-free</strong></p></td>
+</tr>
+<tr>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/spikefree.png"><img src="../assets/chapter04/chm_individual/spikefree.png" alt="BR01 Spike-free canopy height model" width="100%"></a><p><strong>Spike-free</strong></p></td>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/percentile_top_pitfree_low5.png"><img src="../assets/chapter04/chm_individual/percentile_top_pitfree_low5.png" alt="BR01 Percentile-top (low=5) canopy height model" width="100%"></a><p><strong>Percentile-top (low=5)</strong></p></td>
+</tr>
+<tr>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/percentile_pitfree_pct5.png"><img src="../assets/chapter04/chm_individual/percentile_pitfree_pct5.png" alt="BR01 Percentile (pct=5) canopy height model" width="100%"></a><p><strong>Percentile (pct=5)</strong></p></td>
+<td width="50%" valign="top" align="center"><a href="../assets/chapter04/chm_individual/percentile_band_pitfree_low2_high8.png"><img src="../assets/chapter04/chm_individual/percentile_band_pitfree_low2_high8.png" alt="BR01 Percentile-band (low=2, high=8) canopy height model" width="100%"></a><p><strong>Percentile-band (low=2, high=8)</strong></p></td>
+</tr>
+</tbody></table>
+
+<p><em>Figure 4.2. BR01 CHM variants shown individually in a two-column layout. The Fareed (2026) variants filter input points by Z-height before CHM reconstruction; the comparison does not imply an accuracy ranking.</em></p>
+<h3 id="471-measured-raster-summary">4.7.1 Measured raster summary</h3>
+<p>All ten supplied rasters are <strong>403 × 403 pixels, 1 m resolution, EPSG:25832</strong>. The following values were calculated directly from valid GeoTIFF cells; they are not classification accuracy statistics.</p>
+<table>
+<thead>
+<tr>
+<th>Raster</th>
+<th style="text-align: right;">Minimum (m)</th>
+<th style="text-align: right;">Mean (m)</th>
+<th style="text-align: right;">Maximum (m)</th>
+<th style="text-align: right;">Valid cells (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEM</td>
+<td style="text-align: right;">236.54</td>
+<td style="text-align: right;">263.12</td>
+<td style="text-align: right;">295.49</td>
+<td style="text-align: right;">77.2</td>
+</tr>
+<tr>
+<td>DSM</td>
+<td style="text-align: right;">237.12</td>
+<td style="text-align: right;">283.72</td>
+<td style="text-align: right;">336.24</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>P2R</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">20.14</td>
+<td style="text-align: right;">47.34</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>P99</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">19.94</td>
+<td style="text-align: right;">47.15</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>TIN</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">20.14</td>
+<td style="text-align: right;">47.34</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>Pit-free</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">20.56</td>
+<td style="text-align: right;">47.34</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>Spike-free</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">19.74</td>
+<td style="text-align: right;">47.24</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>Percentile-top</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">20.68</td>
+<td style="text-align: right;">47.34</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>Percentile pct=5</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">2.55</td>
+<td style="text-align: right;">5.0</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+<tr>
+<td>Percentile band 2–8</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">5.31</td>
+<td style="text-align: right;">8.0</td>
+<td style="text-align: right;">56.5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation warning.</strong> The <code>percentile:pitfree:pct=5</code> output is bounded near 5 m and the <code>percentile_band:pitfree:low=2:high=8</code> output near 8 m. These maxima follow the configured height filters (<code>z &lt;= 5 m</code> and <code>2 &lt;= z &lt;= 8 m</code>), not statistical percentile calculations. Similarly, equal P2R/TIN summary values do not prove pixel-by-pixel equality. Valid coverage also varies between DEM and canopy rasters; no-data must not be recoded as zero without a defensible reason.</p>
+<h2 id="48-chm-based-crown-segmentation-and-individual-tree-detection">4.8 CHM-based crown segmentation and individual-tree detection</h2>
+<p>A canopy height model is a height surface, not an individual-tree map. FAST_ITD delineates candidate crowns from a CHM, produces a crown-label raster and treetop locations, and exports a <strong>combined crown shapefile</strong>. FAST_TREECLOUDS subsequently uses the crown delineation to assign points in a normalized LAS to individual tree segments. These are distinct stages: a polygon is not itself a 3D tree point cloud.</p>
+<h3 id="481-methods-exposed-by-fast-gc-021">4.8.1 Methods exposed by FAST-GC 0.2.1</h3>
+<p>The installed CLI advertises <code>placeholder</code>, <code>lmf</code>, <code>watershed</code>, <code>adaptive_watershed</code>, <code>yun2021</code>, <code>dalponte2016</code>, <code>li2012</code>, and <code>csp</code>. These are <strong>available CLI choices</strong>, not evidence that every method is CHM-only, equally mature, or equally accurate. The BR01 full-plot experiment selected <strong><code>yun2021</code></strong> after user visual comparison; no reference-based accuracy ranking was established. The <code>placeholder</code> option is not a scientific segmentation baseline.</p>
+<h3 id="482-why-use-the-merged-chm">4.8.2 Why use the merged CHM?</h3>
+<p>For the complete BR01 survey, the merged product directory contains a single pit-free CHM and a complete normalized LAS. Running on the merged CHM avoids dividing the crown delineation into nine independent tile-level rasters and provides one continuous label domain. Tiled processing remains useful for large surveys; merging is preferable only when the complete raster is spatially coherent and fits the available resources. The installed FAST_ITD resolver returned <code>merged_root</code>, one CHM raster, and the expected pit-free variant for this dataset.</p>
+<p>The BR01 merged inputs used in the verified experiment are:</p>
+<div class="highlight"><pre><span></span><code>ALS_tiles/Merged_ALS/
+  ALS-on_BR01_2019-07-05_300m_FAST_CHM_pitfree.tif
+  ALS-on_BR01_2019-07-05_300m_FAST_NORMALIZED.las
+</code></pre></div>
+<p><strong>Verified PowerShell command: FAST_ITD Yun2021 from the merged CHM</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nv">$merged</span> <span class="p">=</span> <span class="s1">'G:\ALS_Jin\concurrent\BR01\ALS\BR01_ALL_PRODUCTS\ALS_tiles\Merged_ALS'</span>
+<span class="nv">$chm</span> <span class="p">=</span> <span class="nb">Join-Path</span> <span class="nv">$merged</span> <span class="s1">'ALS-on_BR01_2019-07-05_300m_FAST_CHM_pitfree.tif'</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="n">-LiteralPath</span> <span class="nv">$chm</span> <span class="n">-PathType</span> <span class="n">Leaf</span><span class="p">))</span> <span class="p">{</span> <span class="k">throw</span> <span class="s2">"Merged CHM missing: $chm"</span> <span class="p">}</span>
+<span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="nv">$merged</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">derive-only</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_ITD</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_method</span> <span class="n">yun2021</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_source_chm</span> <span class="n">pitfree</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_min_height</span> <span class="n">2</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_crown_window_m</span> <span class="n">3</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_min_peak_separation_m</span> <span class="n">1</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">1</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'FAST_ITD failed'</span> <span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$merged</code></td>
+<td>Existing complete-plot merged product directory</td>
+<td>Validate it exists; BR01 workstation-specific path</td>
+</tr>
+<tr>
+<td><code>--in_path</code></td>
+<td>Root from which FAST_ITD resolves merged rasters</td>
+<td><code>Merged_ALS</code> was verified as <code>merged_root</code> in FAST-GC 0.2.1</td>
+</tr>
+<tr>
+<td><code>--sensor_mode ALS</code></td>
+<td>Airborne laser scanning mode</td>
+<td>Match acquisition type; not a claim about ULS/TLS performance</td>
+</tr>
+<tr>
+<td><code>--workflow derive-only</code></td>
+<td>Derive downstream products without ground reclassification</td>
+<td>Requires existing CHM</td>
+</tr>
+<tr>
+<td><code>--products FAST_ITD</code></td>
+<td>Request crown delineation</td>
+<td>Does not run tree-cloud extraction</td>
+</tr>
+<tr>
+<td><code>--itd_method yun2021</code></td>
+<td>Select tested crown segmentation method</td>
+<td>Chosen for BR01 visual plausibility; no reference accuracy established</td>
+</tr>
+<tr>
+<td><code>--itd_source_chm pitfree</code></td>
+<td>Select merged pit-free CHM</td>
+<td>Keep fixed for method comparisons</td>
+</tr>
+<tr>
+<td><code>--itd_min_height 2.0</code></td>
+<td>Minimum canopy/surface height threshold, m</td>
+<td>BR01 tested setting; sensitivity should be evaluated</td>
+</tr>
+<tr>
+<td><code>--itd_crown_window_m 3.0</code></td>
+<td>Crown/treetop neighborhood window, m</td>
+<td>BR01 tested setting; affects local separation</td>
+</tr>
+<tr>
+<td><code>--itd_min_peak_separation_m 1.5</code></td>
+<td>Minimum peak spacing, m</td>
+<td>BR01 tested setting; may suppress adjacent small crowns</td>
+</tr>
+<tr>
+<td><code>--jobs 1</code></td>
+<td>Parallel workers</td>
+<td>One complete raster; no inter-raster parallel benefit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Measured execution:</strong> one merged raster, <strong>5.96 s</strong>, <code>ok=1</code>, <code>failed=0</code> (BR01 experiment, 13 October 2026). This measures execution, not delineation accuracy.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../assets/chapter04/br01_yun2021_chm_crowns_treetops_2x2.png" data-desc-position="bottom"><img alt="BR01 pit-free CHM, Yun2021 crown boundaries and treetops, with legend" src="../assets/chapter04/br01_yun2021_chm_crowns_treetops_2x2.png"></a></p>
+<p><em>Figure 4.3. Four-panel presentation of the actual BR01 merged pit-free CHM, Yun2021 crown boundaries, and detected treetops. The fourth panel contains the shared legend. The figure deliberately omits coordinate-system identifiers to prioritize interpretation. The crown layer has 713 polygon features and the treetop layer has 628 point features; feature counts should not be interpreted as validated numbers of individual trees.</em></p>
+<h3 id="483-fast_itd-deliverables">4.8.3 FAST_ITD deliverables</h3>
+<p>The observed complete-plot output was written under:</p>
+<div class="highlight"><pre><span></span><code>Merged_ALS/FAST_ITD/yun2021/chm/pitfree/
+  crowns/*_yun2021_crowns.shp
+  treetops/*_yun2021_treetops.shp
+  labels/*_yun2021_labels.tif
+  qa/*_yun2021_filtered_chm.tif
+  itd_manifest.json
+  *_itd_result.json
+</code></pre></div>
+<p>A shapefile is a <em>multi-file dataset</em>: retain its <code>.shp</code>, <code>.shx</code>, <code>.dbf</code>, <code>.prj</code>, and other associated files together. The current verified output is <strong>one combined crown shapefile containing many polygons</strong>, not one shapefile per crown. Per-tree crown shapefile export is a proposed enhancement and should not be documented as a published feature. Keep the combined layer as the canonical GIS deliverable, and maintain stable crown/tree IDs when any per-tree export is introduced.</p>
+<h2 id="49-fast_treeclouds-from-crown-labels-to-individual-tree-las">4.9 FAST_TREECLOUDS: from crown labels to individual-tree LAS</h2>
+<p>FAST_TREECLOUDS uses the existing FAST_ITD crown segmentation and the complete normalized LAS. For BR01, the downstream run was performed from the <strong>same merged product root</strong> as the Yun2021 stage. This is a separate derivation; no reclassification, DEM, or CHM generation is requested.</p>
+<p><strong>Verified PowerShell command: full-plot tree-cloud segmentation</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nv">$merged</span> <span class="p">=</span> <span class="s1">'G:\ALS_Jin\concurrent\BR01\ALS\BR01_ALL_PRODUCTS\ALS_tiles\Merged_ALS'</span>
+<span class="nv">$las</span> <span class="p">=</span> <span class="nb">Join-Path</span> <span class="nv">$merged</span> <span class="s1">'ALS-on_BR01_2019-07-05_300m_FAST_NORMALIZED.las'</span>
+<span class="nv">$crowns</span> <span class="p">=</span> <span class="nb">Join-Path</span> <span class="nv">$merged</span> <span class="s1">'FAST_ITD\yun2021\chm\pitfree\crowns'</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="n">-LiteralPath</span> <span class="nv">$las</span> <span class="n">-PathType</span> <span class="n">Leaf</span><span class="p">))</span> <span class="p">{</span> <span class="k">throw</span> <span class="s2">"Merged normalized LAS missing: $las"</span> <span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Test-Path</span> <span class="n">-LiteralPath</span> <span class="nv">$crowns</span> <span class="n">-PathType</span> <span class="n">Container</span><span class="p">))</span> <span class="p">{</span> <span class="k">throw</span> <span class="s2">"Yun2021 crowns missing: $crowns"</span> <span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">-not</span> <span class="p">(</span><span class="nb">Get-ChildItem</span> <span class="n">-LiteralPath</span> <span class="nv">$crowns</span> <span class="n">-Filter</span> <span class="s1">'*.shp'</span> <span class="o">-File</span><span class="p">))</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'No Yun2021 crown shapefile found'</span> <span class="p">}</span>
+<span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="nv">$merged</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">derive-only</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_TREECLOUDS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_method</span> <span class="n">yun2021</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-itd_source_chm</span> <span class="n">pitfree</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-treeclouds_las_source</span> <span class="n">FAST_NORMALIZED</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-treeclouds_min_height</span> <span class="n">0</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-treeclouds_write_individual</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">1</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'FAST_TREECLOUDS failed'</span> <span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$merged</code></td>
+<td>Merged input and existing ITD product root</td>
+<td>Must be the same root used by the Yun2021 run</td>
+</tr>
+<tr>
+<td><code>--in_path</code></td>
+<td>Downstream product discovery root</td>
+<td>Complete BR01 merged directory, not the original raw LAZ</td>
+</tr>
+<tr>
+<td><code>--sensor_mode ALS</code></td>
+<td>ALS processing context</td>
+<td>Keep consistent with upstream acquisition</td>
+</tr>
+<tr>
+<td><code>--workflow derive-only</code></td>
+<td>Reuse prior products</td>
+<td>Does not request ground filtering or raster reconstruction</td>
+</tr>
+<tr>
+<td><code>--products FAST_TREECLOUDS</code></td>
+<td>Produce segmented tree clouds</td>
+<td>Requires crown labels/polygons and LAS input</td>
+</tr>
+<tr>
+<td><code>--itd_method yun2021</code></td>
+<td>Select matching crown delineation</td>
+<td>Must match the FAST_ITD run; avoids accidentally using watershed</td>
+</tr>
+<tr>
+<td><code>--itd_source_chm pitfree</code></td>
+<td>Select matching CHM variant</td>
+<td>Must match existing crown product namespace</td>
+</tr>
+<tr>
+<td><code>--treeclouds_las_source FAST_NORMALIZED</code></td>
+<td>Use complete height-normalized LAS</td>
+<td>Keep normalization consistent with DEM</td>
+</tr>
+<tr>
+<td><code>--treeclouds_min_height 0.5</code></td>
+<td>Minimum normalized point height, m</td>
+<td>BR01 tested threshold; assess understory and low stems</td>
+</tr>
+<tr>
+<td><code>--treeclouds_write_individual</code></td>
+<td>Write individual-tree LAS files</td>
+<td>In addition to the combined segmented LAS</td>
+</tr>
+<tr>
+<td><code>--jobs 1</code></td>
+<td>Dataset parallelism</td>
+<td>One complete merged survey input</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Measured execution:</strong> one complete merged dataset, <strong>6 min 24 s</strong>, <code>ok=1</code>, <code>failed=0</code> (BR01 experiment, 13 October 2026). The execution succeeded, but no independent per-tree reference accuracy has been established. The output namespace follows <code>Merged_ALS/FAST_TREECLOUDS/yun2021/chm/pitfree/FAST_NORMALIZED/</code>; inspect the directory to verify actual LAS counts before reporting them.</p>
+<h3 id="491-las-attributes-and-tree-cloud-products">4.9.1 LAS attributes and tree-cloud products</h3>
+<p>The BR01 combined segmented LAS exposes the following <strong>extra dimensions</strong>. These are identifiers and segmentation descriptors, not new physical measurements. Their exact relationships should be verified against the run's output manifest and the source label raster before interpreting tree counts.</p>
+<table>
+<thead>
+<tr>
+<th>LAS attribute</th>
+<th>Interpretation</th>
+<th>How readers should use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tree_id</code></td>
+<td>Assigned individual-tree identifier</td>
+<td>Group points for a tree; verify whether zero denotes unassigned points</td>
+</tr>
+<tr>
+<td><code>crown_id</code></td>
+<td>Crown-region identifier</td>
+<td>Relate point groups to crown polygons/labels</td>
+</tr>
+<tr>
+<td><code>crown_uid</code></td>
+<td>Crown identifier intended for cross-product reference</td>
+<td>Prefer for stable joins only after checking uniqueness</td>
+</tr>
+<tr>
+<td><code>parent_tree_id</code></td>
+<td>Parent tree association</td>
+<td>Inspect for hierarchical/merged tree associations</td>
+</tr>
+<tr>
+<td><code>segment_id</code></td>
+<td>Segmentation region or object identifier</td>
+<td>Trace subsegments where the implementation creates them</td>
+</tr>
+<tr>
+<td><code>obj_type</code></td>
+<td>Object/category code</td>
+<td>Decode from the installed writer before assigning semantic class names</td>
+</tr>
+</tbody>
+</table>
+<p>A typical output root is <code>Merged_ALS/FAST_TREECLOUDS/yun2021/chm/pitfree/FAST_NORMALIZED/</code>. The workflow writes a combined LAS carrying segmentation attributes and, when <code>--treeclouds_write_individual</code> is enabled, an <code>individual_trees/</code> directory. Each individual-tree LAS should preserve its source point coordinates, normalised heights, and supported point attributes. Verify the actual output manifest and individual file counts before publication.</p>
+<h3 id="492-interpreting-segmentation-and-validating-tree-clouds">4.9.2 Interpreting segmentation and validating tree clouds</h3>
+<p>A successful extraction is not evidence that every crown corresponds to exactly one biological tree. Check crown/tree identifier consistency, duplicated IDs, canopy edge effects, point retention, and implausibly large or small individual-tree extents. The combined segmented LAS contains tree-related point attributes; the precise assignment behavior must be established from source and point records before drawing claims about understorey recovery or overlap handling. Visualize selected individual LAS clouds in 3D and compare them with the CHM-derived crown polygons.</p>
+<h3 id="493-installation-and-release-reproducibility">4.9.3 Installation and release reproducibility</h3>
+<p>The BR01 merged-root Yun2021 FAST_ITD command succeeded using the installed CLI. FAST_TREECLOUDS also succeeded for the merged-root workflow. Separately, the same local Conda installation was patched in <code>fastgc/treeclouds.py</code> to (i) search the sibling <code>Merged_ALS</code> directory when invoked from <code>Processed_ALS</code>, and (ii) copy LAS headers when exporting subsets. <strong>These are local installed-package changes, not confirmed changes to the published PyPI package or the development repository.</strong> Readers using an unpatched installation should use the tested <code>Merged_ALS</code> root and verify their installed version; the final book should be synchronized with a tested release before asserting portability.</p>
+<h3 id="494-future-software-validation">4.9.4 Future software validation</h3>
+<p>Exporting each crown as an individual shapefile, improving crown delineation with PyCrown-derived <em>ideas</em>, and ensuring matching tree IDs between polygon and LAS exports are development goals. PyCrown source integration requires a license and compatibility review; a controlled benchmark against the Yun2021 baseline is necessary before recommending an algorithm change. Preserve baseline outputs, run experiments in a separate namespace, and avoid treating geometric plausibility as reference-based accuracy.</p>
+<h2 id="410-recovering-products-without-reclassifying">4.10 Recovering products without reclassifying</h2>
+<p>A partially successful <code>tile-run-merge</code> job may leave classified tiles, DEM, and DSM already written. In that case, <strong>do not automatically rerun ground classification</strong>. Use <code>derive-only</code> on the existing <code>Processed_ALS</code> root after verifying required source folders. For the BR01 workspace used in the unsuccessful initial multi-target experiment, that root was:</p>
+<p><code>G:\ALS_Jin\concurrent\BR01\ALS\BR01_ALL_PRODUCTS_140m\ALS_tiles\Processed_ALS</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\BR01_ALL_PRODUCTS_140m\ALS_tiles\Processed_ALS"</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">derive-only</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_NORMALIZED</span> <span class="n">FAST_CHM</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-dem_method</span> <span class="n">min</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-jobs</span> <span class="n">8</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-chm_methods</span> <span class="n">p2r</span> <span class="n">p99</span> <span class="n">tin</span> <span class="n">pitfree</span> <span class="n">spikefree</span> <span class="p">`</span>
+    <span class="n">percentile</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">pct</span><span class="p">=</span><span class="n">5</span> <span class="p">`</span>
+    <span class="n">percentile_top</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">low</span><span class="p">=</span><span class="n">5</span> <span class="p">`</span>
+    <span class="n">percentile_band</span><span class="p">:</span><span class="n">pitfree</span><span class="p">:</span><span class="n">low</span><span class="p">=</span><span class="n">2</span><span class="p">:</span><span class="n">high</span><span class="p">=</span><span class="n">8</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--in_path</code></td>
+<td>Existing processed product root</td>
+<td>Must contain <code>FAST_GC</code> and required upstream folders</td>
+</tr>
+<tr>
+<td><code>--workflow derive-only</code></td>
+<td>Reuse processed data</td>
+<td>Avoids ground classification rerun</td>
+</tr>
+<tr>
+<td><code>--products FAST_NORMALIZED FAST_CHM</code></td>
+<td>Derive missing products</td>
+<td>Existing DEM/DSM may be reused; inspect files before running</td>
+</tr>
+<tr>
+<td><code>--chm_methods</code></td>
+<td>Validated list of CHM targets</td>
+<td>Never include <code>adaptive_pitfree</code> in the current multi-method parser</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Version caution:</strong> The installed <code>derive-only</code> source recognizes a <code>Processed_ALS</code> directory and checks for normalized data and DSM/DEM dependencies. Whether a particular output is skipped or overwritten depends on the installed version and its <code>--skip_existing</code> behavior. Back up results before experimentation.</p>
+<h2 id="411-quality-control-and-troubleshooting">4.11 Quality control and troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause or interpretation</th>
+<th>Recommended check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input path not found</td>
+<td>Placeholder or wrong drive/file</td>
+<td><code>Test-Path -LiteralPath "..."</code> before running</td>
+</tr>
+<tr>
+<td>CHM method rejected after earlier stages</td>
+<td>CLI/parser mismatch (<code>adaptive_pitfree</code>)</td>
+<td>Use the validated multi-target list; validate early</td>
+</tr>
+<tr>
+<td>Tile-edge seams</td>
+<td>Inadequate context or merge issue</td>
+<td>Inspect adjacent tile boundaries and core/buffer rules</td>
+</tr>
+<tr>
+<td>Missing DEM cells</td>
+<td>Sparse classified ground returns</td>
+<td>Inspect ground density and classification, not just interpolation</td>
+</tr>
+<tr>
+<td>CHM pits/spikes</td>
+<td>Sampling gaps or surface reconstruction</td>
+<td>Compare P2R, P99, pit-free, spike-free visually and against reference data</td>
+</tr>
+<tr>
+<td>Height-limited Fareed (2026) selector outputs</td>
+<td>Expected height-threshold point filtering</td>
+<td>Check <code>pct</code>, <code>low</code>, <code>high</code> against intended canopy stratum</td>
+</tr>
+<tr>
+<td>Excessive RAM/runtime</td>
+<td>Dense tiles or excessive workers</td>
+<td>Reduce concurrency or adjust tile dimensions</td>
+</tr>
+<tr>
+<td>Mixed multi-file outputs</td>
+<td>Incompatible source files or CRS</td>
+<td>Validate each survey before wall-to-wall merge</td>
+</tr>
+</tbody>
+</table>
+<p>A successful command exit confirms execution, not accuracy. A book-quality validation should report ground/non-ground class counts, merged point preservation, seam checks, raster no-data coverage, CRS, and comparison to independent ground truth where available. Without such evidence, do not report accuracy metrics.</p>
+<h2 id="412-reproducibility-and-next-chapter">4.12 Reproducibility and next chapter</h2>
+<p>The BR01 dataset and GeoTIFF products provide a repeatable illustration of <strong>ground classification → DEM → normalized points → DSM → alternative CHMs → Yun2021 ITD → FAST_TREECLOUDS</strong>. Site 5 supplies a separate performance comparison. The reader should retain the original LAS/LAZ, processing manifest, command, software version, hardware description, output file inventory, and elapsed time. The next chapter treats terrain derivatives and hydrological analysis as a separate analytical stage built upon the DEM.</p>
+<h3 id="selected-references">Selected references</h3>
+<ul>
+<li>Axelsson, P. (2000). DEM generation from laser scanner data using adaptive TIN models. <em>International Archives of Photogrammetry and Remote Sensing</em>, 33(B4), 110–117.</li>
+<li>Kraus, K., &amp; Pfeifer, N. (1998). Determination of terrain models in wooded areas with airborne laser scanner data. <em>ISPRS Journal of Photogrammetry and Remote Sensing</em>, 53(4), 193–203.</li>
+<li>Khosravipour, A., Skidmore, A. K., Isenburg, M., Wang, T., &amp; Hussin, Y. A. (2014). Generating pit-free canopy height models from airborne lidar. <em>Photogrammetric Engineering &amp; Remote Sensing</em>, 80(9), 863–872.</li>
+<li>Isenburg, M. (2014). <em>LAStools: Efficient LiDAR Processing Software</em>. Software documentation.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

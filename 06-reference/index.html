@@ -1,0 +1,1265 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Practical FAST-GC LiDAR processing guide">
+      
+      
+      
+      
+        <link rel="prev" href="../05-case-studies/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Chapter 7: Command Reference - FAST-GC Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/fastgc-book.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-7-fast-gc-command-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FAST-GC Book" class="md-header__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FAST-GC Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 7: Command Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    FAST-GC Book
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1: Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Cross-Platform Installation, Configuration, and Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-fast-gis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3: FAST-GIS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-ground-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4: Ground Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-products/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 5: Products
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 6: Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 7: Command Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 7: Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#71-canonical-command-and-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Canonical command and conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.1 Canonical command and conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verified-cli-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified CLI values
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#72-complete-option-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Complete option inventory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.2 Complete option inventory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-and-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution and I/O
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raster-dsm-and-chm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raster, DSM and CHM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fast-terrain-and-hydrology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FAST-TERRAIN and hydrology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fast-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FAST-CHANGE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fast-itd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FAST-ITD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fast-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FAST-STRUCTURE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fast-treeclouds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FAST-TREECLOUDS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tiling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#73-documentation-reliability-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Documentation reliability rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-7-fast-gc-command-reference">Chapter 7 — FAST-GC Command Reference</h1>
+<blockquote>
+<p>Source: <code>fastgc --help</code>, source commit <code>ac3a112a393a074ca7645a790f603c531f8d5fc6</code>. This reference describes <strong>advertised CLI options</strong>, not a claim that every product has been benchmark-validated.</p>
+</blockquote>
+<h2 id="71-canonical-command-and-conventions">7.1 Canonical command and conventions</h2>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"C:\data\survey.las"</span> <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"C:\data\output"</span> <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">-</span><span class="n">-workflow</span> <span class="n">run</span> <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--in_path</code></td>
+<td>Input LAS/LAZ, folder, or product root</td>
+<td>Required; do not use <code>--input</code></td>
+</tr>
+<tr>
+<td><code>--sensor_mode</code></td>
+<td>ALS, ULS, or TLS</td>
+<td>Required for normal workflows</td>
+</tr>
+<tr>
+<td><code>--workflow</code></td>
+<td>Processing route</td>
+<td>Select according to whether tiling or derivation is needed</td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Output product family or families</td>
+<td>Default is FAST_GC only; <code>all</code> requests full pipeline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verified-cli-values">Verified CLI values</h3>
+<ul>
+<li>Workflows: <code>run</code>, <code>plots-run</code>, <code>tile-only</code>, <code>tile-run</code>, <code>tile-run-merge</code>, <code>merge</code>, <code>derive-only</code>.</li>
+<li>Sensors: <code>ALS</code>, <code>ULS</code>, <code>TLS</code>.</li>
+<li>Product selections: <code>FAST_GC</code>, <code>FAST_DEM</code>, <code>FAST_NORMALIZED</code>, <code>FAST_DSM</code>, <code>FAST_CHM</code>, <code>FAST_TERRAIN</code>, <code>FAST_CHANGE</code>, <code>FAST_ITD</code>, <code>FAST_STRUCTURE</code>, <code>FAST_TREECLOUDS</code>, <code>all</code>.</li>
+<li>Flags generally accept both underscore and hyphen spellings where advertised. Use the spellings shown in this chapter.</li>
+</ul>
+<h2 id="72-complete-option-inventory">7.2 Complete option inventory</h2>
+<p>The third column preserves descriptions and documented defaults from the installed CLI. When the CLI does not state a default, it is <strong>not inferred</strong>.</p>
+<h3 id="execution-and-io">Execution and I/O</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--in_path</code></td>
+<td>Input LAS/LAZ file, folder, or processed product root depending on workflow.</td>
+<td>See accepted syntax: <code>--in_path IN_PATH, --in-path IN_PATH</code></td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Output root folder. If omitted, outputs are created beside the input.</td>
+<td>See accepted syntax: <code>--out_dir OUT_DIR, --out-dir OUT_DIR</code></td>
+</tr>
+<tr>
+<td><code>--sensor_mode</code></td>
+<td>Sensor mode. Required for normal workflows and external plots-run inputs; managed FAST-GIS plots-run collections may read it from plots_manifest.json.</td>
+<td>See accepted syntax: <code>--sensor_mode {ALS,ULS,TLS}, --sensor-mode {ALS,ULS,TLS}</code></td>
+</tr>
+<tr>
+<td><code>--workflow</code></td>
+<td>Workflow to execute.</td>
+<td>See accepted syntax: <code>--workflow {run,plots-run,tile-only,tile-run,tile-run-merge,merge,derive-only}</code></td>
+</tr>
+<tr>
+<td><code>--jobs</code></td>
+<td>automatically uses available CPUs while reserving one core. Use 1 for sequential; negative values mean cpu_count+n+1.</td>
+<td>See accepted syntax: <code>--jobs JOBS           Number of workers for tile-parallel stages. Default 0</code></td>
+</tr>
+<tr>
+<td><code>--joblib_backend</code></td>
+<td>Execution backend for tile-parallel stages.</td>
+<td>See accepted syntax: <code>--joblib_backend {loky,multiprocessing,sequential,threading}, --joblib-backend {loky,multiprocessing,sequential,threading}</code></td>
+</tr>
+<tr>
+<td><code>--joblib_batch_size</code></td>
+<td>Joblib batch size for tile-parallel stages. Use 'auto' or an integer.</td>
+<td>See accepted syntax: <code>--joblib_batch_size JOBLIB_BATCH_SIZE, --joblib-batch-size JOBLIB_BATCH_SIZE</code></td>
+</tr>
+<tr>
+<td><code>--joblib_pre_dispatch</code></td>
+<td>Joblib pre_dispatch setting for tile-parallel stages.</td>
+<td>See accepted syntax: <code>--joblib_pre_dispatch JOBLIB_PRE_DISPATCH, --joblib-pre-dispatch JOBLIB_PRE_DISPATCH</code></td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Products to write. Default is FAST_GC only. Use 'all' for the full pipeline.</td>
+<td>See accepted syntax: <code>--products {all,FAST_GC,FAST_DEM,FAST_NORMALIZED,FAST_DSM,FAST_CHM,FAST_TERRAIN,FAST_CHANGE,FAST_ITD,FAST_STRUCTURE,FAST_TREECLOUDS} [{all,FAST_GC,FAST_DEM,FAST_NORMALIZED,FAST_DSM,FAST_CHM,FAST_TERRAIN,FAST_CHANGE,FAST_ITD,FAST_STRUCTURE,FAST_TREECLOUDS} ...]</code></td>
+</tr>
+<tr>
+<td><code>--recursive</code></td>
+<td>CLI option</td>
+<td>See accepted syntax: <code>--recursive           Recursively scan input folders.</code></td>
+</tr>
+<tr>
+<td><code>--skip_existing</code></td>
+<td>Skip steps/products that appear already completed.</td>
+<td>See accepted syntax: <code>--skip_existing, --skip-existing</code></td>
+</tr>
+<tr>
+<td><code>--overwrite</code></td>
+<td>CLI option</td>
+<td>See accepted syntax: <code>--overwrite           Overwrite existing downstream outputs.</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="raster-dsm-and-chm">Raster, DSM and CHM</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--grid_res</code></td>
+<td>Raster grid resolution. Default: 0.5</td>
+<td>See accepted syntax: <code>--grid_res GRID_RES, --grid-res GRID_RES</code></td>
+</tr>
+<tr>
+<td><code>--dem_method</code></td>
+<td>DEM raster method. Default: min</td>
+<td>See accepted syntax: <code>--dem_method {min,max,mean,nearest,idw}, --dem-method {min,max,mean,nearest,idw}</code></td>
+</tr>
+<tr>
+<td><code>--dsm_method</code></td>
+<td>DSM raster method. Includes 'spikefree' for DSM-first spikefree routing.</td>
+<td>See accepted syntax: <code>--dsm_method {min,max,mean,nearest,idw,spikefree}, --dsm-method {min,max,mean,nearest,idw,spikefree}</code></td>
+</tr>
+<tr>
+<td><code>--chm_method</code></td>
+<td>Primary CHM mode. 'spikefree' is routed DSM-first; 'csf_chm' is cloth-simulation CHM.</td>
+<td>See accepted syntax: <code>--chm_method {p2r,p99,tin,pitfree,adaptive_pitfree,csf_chm,spikefree,percentile,percentile_top,percentile_band}, --chm-method {p2r,p99,tin,pitfree,adaptive_pitfree,csf_chm,spikefree,percentile,percentile_top,percentile_band}</code></td>
+</tr>
+<tr>
+<td><code>--chm_methods</code></td>
+<td>Optional list of CHM targets to generate in one run. Supports plain methods (e.g. p2r p99 pitfree csf_chm spikefree) and custom selector specs, e.g. 'percentile_top:pitfree:low=5' or 'percentile:pitfree:pct=5'.</td>
+<td>See accepted syntax: <code>--chm_methods CHM_METHODS [CHM_METHODS ...], --chm-methods CHM_METHODS [CHM_METHODS ...]</code></td>
+</tr>
+<tr>
+<td><code>--chm_surface_method</code></td>
+<td>Surface method used when chm_method is a selector family.</td>
+<td>See accepted syntax: <code>--chm_surface_method {p2r,p99,tin,pitfree,adaptive_pitfree,csf_chm}, --chm-surface-method {p2r,p99,tin,pitfree,adaptive_pitfree,csf_chm}</code></td>
+</tr>
+<tr>
+<td><code>--chm_smooth_method</code></td>
+<td>CHM post-smoothing method.</td>
+<td>See accepted syntax: <code>--chm_smooth_method {none,median,gaussian}, --chm-smooth-method {none,median,gaussian}</code></td>
+</tr>
+<tr>
+<td><code>--chm_percentile</code></td>
+<td>Percentile used for p99 or percentile selector. Default: 99</td>
+<td>See accepted syntax: <code>--chm_percentile CHM_PERCENTILE, --chm-percentile CHM_PERCENTILE</code></td>
+</tr>
+<tr>
+<td><code>--chm_percentile_low</code></td>
+<td>Lower percentile bound for percentile_top or percentile_band.</td>
+<td>See accepted syntax: <code>--chm_percentile_low CHM_PERCENTILE_LOW, --chm-percentile-low CHM_PERCENTILE_LOW</code></td>
+</tr>
+<tr>
+<td><code>--chm_percentile_high</code></td>
+<td>Upper percentile bound for percentile_band.</td>
+<td>See accepted syntax: <code>--chm_percentile_high CHM_PERCENTILE_HIGH, --chm-percentile-high CHM_PERCENTILE_HIGH</code></td>
+</tr>
+<tr>
+<td><code>--chm_pitfree_thresholds</code></td>
+<td>Pit-free thresholds in normalized-height units.</td>
+<td>See accepted syntax: <code>--chm_pitfree_thresholds [CHM_PITFREE_THRESHOLDS ...], --chm-pitfree-thresholds [CHM_PITFREE_THRESHOLDS ...]</code></td>
+</tr>
+<tr>
+<td><code>--chm_use_first_returns</code></td>
+<td>Prefer first returns for eligible CHM methods.</td>
+<td>See accepted syntax: <code>--chm_use_first_returns, --chm-use-first-returns</code></td>
+</tr>
+<tr>
+<td><code>--chm_no_first_returns</code></td>
+<td>Disable first-return preference.</td>
+<td>See accepted syntax: <code>--chm_no_first_returns, --chm-no-first-returns</code></td>
+</tr>
+<tr>
+<td><code>--chm_spikefree_freeze_distance</code></td>
+<td>Spikefree freeze distance in map units. Used for DSM spikefree and derived CHM spikefree.</td>
+<td>See accepted syntax: <code>--chm_spikefree_freeze_distance CHM_SPIKEFREE_FREEZE_DISTANCE, --chm-spikefree-freeze-distance CHM_SPIKEFREE_FREEZE_DISTANCE</code></td>
+</tr>
+<tr>
+<td><code>--chm_spikefree_insertion_buffer</code></td>
+<td>Spikefree insertion buffer in height units. Used for DSM spikefree and derived CHM spikefree.</td>
+<td>See accepted syntax: <code>--chm_spikefree_insertion_buffer CHM_SPIKEFREE_INSERTION_BUFFER, --chm-spikefree-insertion-buffer CHM_SPIKEFREE_INSERTION_BUFFER</code></td>
+</tr>
+<tr>
+<td><code>--chm_median_size</code></td>
+<td>Median filter kernel size for CHM post-smoothing. Use 0 to disable.</td>
+<td>See accepted syntax: <code>--chm_median_size CHM_MEDIAN_SIZE, --chm-median-size CHM_MEDIAN_SIZE</code></td>
+</tr>
+<tr>
+<td><code>--chm_gaussian_sigma</code></td>
+<td>Gaussian sigma for CHM smoothing. Default: 1.0</td>
+<td>See accepted syntax: <code>--chm_gaussian_sigma CHM_GAUSSIAN_SIGMA, --chm-gaussian-sigma CHM_GAUSSIAN_SIGMA</code></td>
+</tr>
+<tr>
+<td><code>--chm_min_height</code></td>
+<td>Minimum CHM height threshold; smaller values are set to 0.</td>
+<td>See accepted syntax: <code>--chm_min_height CHM_MIN_HEIGHT, --chm-min-height CHM_MIN_HEIGHT</code></td>
+</tr>
+<tr>
+<td><code>--chm_fill_ground_voids_zero</code></td>
+<td>Fill CHM voids with zero where support indicates ground/open cells. Default: on.</td>
+<td>See accepted syntax: <code>--chm_fill_ground_voids_zero, --chm-fill-ground-voids-zero</code></td>
+</tr>
+<tr>
+<td><code>--chm_no_fill_ground_voids_zero</code></td>
+<td>Disable CHM zero-filling for true ground/open voids.</td>
+<td>See accepted syntax: <code>--chm_no_fill_ground_voids_zero, --chm-no-fill-ground-voids-zero</code></td>
+</tr>
+<tr>
+<td><code>--chm_void_ground_threshold</code></td>
+<td>Threshold used to classify normalized support as true ground/open for CHM void filling.</td>
+<td>See accepted syntax: <code>--chm_void_ground_threshold CHM_VOID_GROUND_THRESHOLD, --chm-void-ground-threshold CHM_VOID_GROUND_THRESHOLD</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fast-terrain-and-hydrology">FAST-TERRAIN and hydrology</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--terrain_products</code></td>
+<td>Terrain products to generate when FAST_TERRAIN is requested.</td>
+<td>See accepted syntax: <code>--terrain_products {d8_downslope_flow_length,curvature,d8_flow_accumulation,mfd_contributing_area,d8_specific_catchment_area,mean_curvature,slope_percent,tci,topographic_wetness_index,twi,tri,d8_longest_upslope_flow_length,planform_curvature,all,dtw,watershed_boundary,mfd_specific_catchment_area,conditioned_dem,subcatchment_id,d8_flow_direction,positive_openness,gaussian_curvature,profile_curvature,negative_openness,contributing_area_ls_factor,strahler_stream_order,tpi,basin_id,mfd_flow_accumulation,rusle_s_factor,hillshade,multiscale_tpi,stream_power_index,slope_degrees,stream_mask,local_relief,stream_link_id,tangential_curvature,depression_depth,roughness,aspect,d8_contributing_area} [{d8_downslope_flow_length,curvature,d8_flow_accumulation,mfd_contributing_area,d8_specific_catchment_area,mean_curvature,slope_percent,tci,topographic_wetness_index,twi,tri,d8_longest_upslope_flow_length,planform_curvature,all,dtw,watershed_boundary,mfd_specific_catchment_area,conditioned_dem,subcatchment_id,d8_flow_direction,positive_openness,gaussian_curvature,profile_curvature,negative_openness,contributing_area_ls_factor,strahler_stream_order,tpi,basin_id,mfd_flow_accumulation,rusle_s_factor,hillshade,multiscale_tpi,stream_power_index,slope_degrees,stream_mask,local_relief,stream_link_id,tangential_curvature,depression_depth,roughness,aspect,d8_contributing_area} ...], --terrain-products {d8_downslope_flow_length,curvature,d8_flow_accumulation,mfd_contributing_area,d8_specific_catchment_area,mean_curvature,slope_percent,tci,topographic_wetness_index,twi,tri,d8_longest_upslope_flow_length,planform_curvature,all,dtw,watershed_boundary,mfd_specific_catchment_area,conditioned_dem,subcatchment_id,d8_flow_direction,positive_openness,gaussian_curvature,profile_curvature,negative_openness,contributing_area_ls_factor,strahler_stream_order,tpi,basin_id,mfd_flow_accumulation,rusle_s_factor,hillshade,multiscale_tpi,stream_power_index,slope_degrees,stream_mask,local_relief,stream_link_id,tangential_curvature,depression_depth,roughness,aspect,d8_contributing_area} [{d8_downslope_flow_length,curvature,d8_flow_accumulation,mfd_contributing_area,d8_specific_catchment_area,mean_curvature,slope_percent,tci,topographic_wetness_index,twi,tri,d8_longest_upslope_flow_length,planform_curvature,all,dtw,watershed_boundary,mfd_specific_catchment_area,conditioned_dem,subcatchment_id,d8_flow_direction,positive_openness,gaussian_curvature,profile_curvature,negative_openness,contributing_area_ls_factor,strahler_stream_order,tpi,basin_id,mfd_flow_accumulation,rusle_s_factor,hillshade,multiscale_tpi,stream_power_index,slope_degrees,stream_mask,local_relief,stream_link_id,tangential_curvature,depression_depth,roughness,aspect,d8_contributing_area} ...]</code></td>
+</tr>
+<tr>
+<td><code>--terrain_output</code></td>
+<td>FAST_TERRAIN output representation. Default: raster. Vector hydrology is generated from the authoritative continuous DEM.</td>
+<td>See accepted syntax: <code>--terrain_output {raster,vector,both}, --terrain-output {raster,vector,both}</code></td>
+</tr>
+<tr>
+<td><code>--stream_threshold_area_m2</code></td>
+<td>Minimum contributing area in square metres used to define the analytical stream network. Default: 1000.</td>
+<td>See accepted syntax: <code>--stream_threshold_area_m2 STREAM_THRESHOLD_AREA_M2, --stream-threshold-area-m2 STREAM_THRESHOLD_AREA_M2</code></td>
+</tr>
+<tr>
+<td><code>--stream_min_order</code></td>
+<td>Minimum Strahler order exported to vector stream layers. Does not alter the complete analytical raster. Default: 1.</td>
+<td>See accepted syntax: <code>--stream_min_order STREAM_MIN_ORDER, --stream-min-order STREAM_MIN_ORDER</code></td>
+</tr>
+<tr>
+<td><code>--hillshade_azimuth</code></td>
+<td>Hillshade illumination azimuth in degrees. Default: 315</td>
+<td>See accepted syntax: <code>--hillshade_azimuth HILLSHADE_AZIMUTH, --hillshade-azimuth HILLSHADE_AZIMUTH</code></td>
+</tr>
+<tr>
+<td><code>--hillshade_altitude</code></td>
+<td>Hillshade illumination altitude in degrees. Default: 45</td>
+<td>See accepted syntax: <code>--hillshade_altitude HILLSHADE_ALTITUDE, --hillshade-altitude HILLSHADE_ALTITUDE</code></td>
+</tr>
+<tr>
+<td><code>--hillshade_z_factor</code></td>
+<td>Hillshade z-factor. Default: 1.0</td>
+<td>See accepted syntax: <code>--hillshade_z_factor HILLSHADE_Z_FACTOR, --hillshade-z-factor HILLSHADE_Z_FACTOR</code></td>
+</tr>
+<tr>
+<td><code>--tpi_radius</code></td>
+<td>Neighborhood radius in cells for TPI. Default: 3</td>
+<td>See accepted syntax: <code>--tpi_radius TPI_RADIUS, --tpi-radius TPI_RADIUS</code></td>
+</tr>
+<tr>
+<td><code>--multiscale_tpi_radii_m</code></td>
+<td>Physical radii in metres for multiscale TPI. Default: 5 10 25 50 100</td>
+<td>See accepted syntax: <code>--multiscale_tpi_radii_m MULTISCALE_TPI_RADII_M [MULTISCALE_TPI_RADII_M ...], --multiscale-tpi-radii-m MULTISCALE_TPI_RADII_M [MULTISCALE_TPI_RADII_M ...]</code></td>
+</tr>
+<tr>
+<td><code>--openness_radii_m</code></td>
+<td>Physical search radii in metres for positive/negative openness. Default: 5 10 25 50 100</td>
+<td>See accepted syntax: <code>--openness_radii_m OPENNESS_RADII_M [OPENNESS_RADII_M ...], --openness-radii-m OPENNESS_RADII_M [OPENNESS_RADII_M ...]</code></td>
+</tr>
+<tr>
+<td><code>--twi_eps</code></td>
+<td>Small epsilon used in TWI computation for numerical stability.</td>
+<td>See accepted syntax: <code>--twi_eps TWI_EPS, --twi-eps TWI_EPS</code></td>
+</tr>
+<tr>
+<td><code>--dtw_max_distance</code></td>
+<td>Optional cap for DTW search distance.</td>
+<td>See accepted syntax: <code>--dtw_max_distance DTW_MAX_DISTANCE, --dtw-max-distance DTW_MAX_DISTANCE</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fast-change">FAST-CHANGE</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--change_input_type</code></td>
+<td>Source raster family for FAST_CHANGE.</td>
+<td>See accepted syntax: <code>--change_input_type {FAST_DEM,FAST_DSM,FAST_CHM,FAST_TERRAIN}, --change-input-type {FAST_DEM,FAST_DSM,FAST_CHM,FAST_TERRAIN}</code></td>
+</tr>
+<tr>
+<td><code>--change_mode</code></td>
+<td>Change detection mode.</td>
+<td>See accepted syntax: <code>--change_mode {pairwise,sequential,baseline}, --change-mode {pairwise,sequential,baseline}</code></td>
+</tr>
+<tr>
+<td><code>--change_threshold</code></td>
+<td>Minimum threshold for gain/loss masks.</td>
+<td>See accepted syntax: <code>--change_threshold CHANGE_THRESHOLD, --change-threshold CHANGE_THRESHOLD</code></td>
+</tr>
+<tr>
+<td><code>--change_baseline_index</code></td>
+<td>Baseline raster index for baseline change mode.</td>
+<td>See accepted syntax: <code>--change_baseline_index CHANGE_BASELINE_INDEX, --change-baseline-index CHANGE_BASELINE_INDEX</code></td>
+</tr>
+<tr>
+<td><code>--change_source_subdir</code></td>
+<td>Optional specific subfolder for FAST_CHM or FAST_TERRAIN change detection.</td>
+<td>See accepted syntax: <code>--change_source_subdir CHANGE_SOURCE_SUBDIR, --change-source-subdir CHANGE_SOURCE_SUBDIR</code></td>
+</tr>
+<tr>
+<td><code>--change_sigma1</code></td>
+<td>Uncertainty term for the first raster/source in LOD computation.</td>
+<td>See accepted syntax: <code>--change_sigma1 CHANGE_SIGMA1, --change-sigma1 CHANGE_SIGMA1</code></td>
+</tr>
+<tr>
+<td><code>--change_sigma2</code></td>
+<td>Uncertainty term for the second raster/source in LOD computation.</td>
+<td>See accepted syntax: <code>--change_sigma2 CHANGE_SIGMA2, --change-sigma2 CHANGE_SIGMA2</code></td>
+</tr>
+<tr>
+<td><code>--change_lod_mode</code></td>
+<td>LOD strategy for FAST_CHANGE.</td>
+<td>See accepted syntax: <code>--change_lod_mode {threshold_only,rss,max}, --change-lod-mode {threshold_only,rss,max}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fast-itd">FAST-ITD</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--itd_method</code></td>
+<td>ITD method for tree detection workflows.</td>
+<td>See accepted syntax: <code>--itd_method {placeholder,lmf,watershed,adaptive_watershed,yun2021,dalponte2016,li2012,csp}, --itd-method {placeholder,lmf,watershed,adaptive_watershed,yun2021,dalponte2016,li2012,csp}</code></td>
+</tr>
+<tr>
+<td><code>--itd_source_chm</code></td>
+<td>Optional CHM variant folder to use for ITD, e.g. pitfree or percentile_band.</td>
+<td>See accepted syntax: <code>--itd_source_chm ITD_SOURCE_CHM, --itd-source-chm ITD_SOURCE_CHM</code></td>
+</tr>
+<tr>
+<td><code>--itd_min_height</code></td>
+<td>Minimum canopy/surface height used for ITD eligibility.</td>
+<td>See accepted syntax: <code>--itd_min_height ITD_MIN_HEIGHT, --itd-min-height ITD_MIN_HEIGHT</code></td>
+</tr>
+<tr>
+<td><code>--itd_crown_window_m</code></td>
+<td>Approximate crown-detection window in map units used for local maxima search.</td>
+<td>See accepted syntax: <code>--itd_crown_window_m ITD_CROWN_WINDOW_M, --itd-crown-window-m ITD_CROWN_WINDOW_M</code></td>
+</tr>
+<tr>
+<td><code>--itd_min_peak_separation_m</code></td>
+<td>Minimum separation between retained treetop candidates in map units.</td>
+<td>See accepted syntax: <code>--itd_min_peak_separation_m ITD_MIN_PEAK_SEPARATION_M, --itd-min-peak-separation-m ITD_MIN_PEAK_SEPARATION_M</code></td>
+</tr>
+<tr>
+<td><code>--itd_angle_threshold_deg</code></td>
+<td>Valley-angle threshold used to prune likely false adjacent treetops.</td>
+<td>See accepted syntax: <code>--itd_angle_threshold_deg ITD_ANGLE_THRESHOLD_DEG, --itd-angle-threshold-deg ITD_ANGLE_THRESHOLD_DEG</code></td>
+</tr>
+<tr>
+<td><code>--itd_screen_max_pair_distance_m</code></td>
+<td>Maximum treetop-pair distance checked during false- peak screening.</td>
+<td>See accepted syntax: <code>--itd_screen_max_pair_distance_m ITD_SCREEN_MAX_PAIR_DISTANCE_M, --itd-screen-max-pair-distance-m ITD_SCREEN_MAX_PAIR_DISTANCE_M</code></td>
+</tr>
+<tr>
+<td><code>--itd_banded_neighborhood_px</code></td>
+<td>Half-width in pixels of the banded neighborhood sampled between adjacent treetop pairs.</td>
+<td>See accepted syntax: <code>--itd_banded_neighborhood_px ITD_BANDED_NEIGHBORHOOD_PX, --itd-banded-neighborhood-px ITD_BANDED_NEIGHBORHOOD_PX</code></td>
+</tr>
+<tr>
+<td><code>--itd_min_crown_area_m2</code></td>
+<td>Minimum crown area retained after raster crown delineation.</td>
+<td>See accepted syntax: <code>--itd_min_crown_area_m2 ITD_MIN_CROWN_AREA_M2, --itd-min-crown-area-m2 ITD_MIN_CROWN_AREA_M2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fast-structure">FAST-STRUCTURE</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--structure_products</code></td>
+<td>FAST_STRUCTURE products to generate from normalized point clouds.</td>
+<td>See accepted syntax: <code>--structure_products {all,canopy_cover,z_mean,z_max,z_sd,FHD,VCI,n_points} [{all,canopy_cover,z_mean,z_max,z_sd,FHD,VCI,n_points} ...], --structure-products {all,canopy_cover,z_mean,z_max,z_sd,FHD,VCI,n_points} [{all,canopy_cover,z_mean,z_max,z_sd,FHD,VCI,n_points} ...]</code></td>
+</tr>
+<tr>
+<td><code>--structure_res</code></td>
+<td>Output raster resolution for FAST_STRUCTURE products.</td>
+<td>See accepted syntax: <code>--structure_res STRUCTURE_RES, --structure-res STRUCTURE_RES</code></td>
+</tr>
+<tr>
+<td><code>--structure_min_h</code></td>
+<td>Minimum normalized height considered vegetation for FAST_STRUCTURE metrics.</td>
+<td>See accepted syntax: <code>--structure_min_h STRUCTURE_MIN_H, --structure-min-h STRUCTURE_MIN_H</code></td>
+</tr>
+<tr>
+<td><code>--structure_bin_size</code></td>
+<td>Vertical bin size for FHD and VCI metrics.</td>
+<td>See accepted syntax: <code>--structure_bin_size STRUCTURE_BIN_SIZE, --structure-bin-size STRUCTURE_BIN_SIZE</code></td>
+</tr>
+<tr>
+<td><code>--canopy_thr</code></td>
+<td>Height threshold used for canopy cover.</td>
+<td>See accepted syntax: <code>--canopy_thr CANOPY_THR, --canopy-thr CANOPY_THR</code></td>
+</tr>
+<tr>
+<td><code>--canopy_mode</code></td>
+<td>Canopy-cover mode.</td>
+<td>See accepted syntax: <code>--canopy_mode {all_points}, --canopy-mode {all_points}</code></td>
+</tr>
+<tr>
+<td><code>--structure_na_fill</code></td>
+<td>Optional NA fill mode for FAST_STRUCTURE outputs.</td>
+<td>See accepted syntax: <code>--structure_na_fill {none,3x3_mean}, --structure-na-fill {none,3x3_mean}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fast-treeclouds">FAST-TREECLOUDS</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--treeclouds_las_source</code></td>
+<td>LAS source used by FAST_TREECLOUDS. Default: FAST_NORMALIZED</td>
+<td>See accepted syntax: <code>--treeclouds_las_source {FAST_NORMALIZED,FAST_GC}, --treeclouds-las-source {FAST_NORMALIZED,FAST_GC}</code></td>
+</tr>
+<tr>
+<td><code>--treeclouds_min_height</code></td>
+<td>Minimum point height retained during FAST_TREECLOUDS segmentation.</td>
+<td>See accepted syntax: <code>--treeclouds_min_height TREECLOUDS_MIN_HEIGHT, --treeclouds-min-height TREECLOUDS_MIN_HEIGHT</code></td>
+</tr>
+<tr>
+<td><code>--treeclouds_write_individual</code></td>
+<td>Also write individual per-tree/per-segment LAS files.</td>
+<td>See accepted syntax: <code>--treeclouds_write_individual, --treeclouds-write-individual</code></td>
+</tr>
+<tr>
+<td><code>--treeclouds_no_write_individual</code></td>
+<td>Disable individual per-tree/per-segment LAS writing.</td>
+<td>See accepted syntax: <code>--treeclouds_no_write_individual, --treeclouds-no-write-individual</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tiling">Tiling</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter / accepted syntax</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--tile_size_m</code></td>
+<td>Tile core size in meters for tiling workflows.</td>
+<td>See accepted syntax: <code>--tile_size_m TILE_SIZE_M, --tile-size-m TILE_SIZE_M</code></td>
+</tr>
+<tr>
+<td><code>--buffer_m</code></td>
+<td>Tile buffer size in meters for tiling workflows.</td>
+<td>See accepted syntax: <code>--buffer_m BUFFER_M, --buffer-m BUFFER_M</code></td>
+</tr>
+<tr>
+<td><code>--small_tile_merge_frac</code></td>
+<td>Merge planned tiles smaller than this fraction into a neighbor.</td>
+<td>See accepted syntax: <code>--small_tile_merge_frac SMALL_TILE_MERGE_FRAC, --small-tile-merge-frac SMALL_TILE_MERGE_FRAC</code></td>
+</tr>
+<tr>
+<td><code>--use_existing_tiles</code></td>
+<td>Treat input folder as already tiled data, build a manifest from existing tiles, and reuse them downstream without retiling.</td>
+<td>See accepted syntax: <code>--use_existing_tiles, --use-existing-tiles</code></td>
+</tr>
+<tr>
+<td><code>--cleanup_tiles</code></td>
+<td>Remove tiling workspace after successful merge.</td>
+<td>See accepted syntax: <code>--cleanup_tiles, --cleanup-tiles</code></td>
+</tr>
+<tr>
+<td><code>--overwrite_tiles</code></td>
+<td>Rebuild tiles even if a tile manifest already exists.</td>
+<td>See accepted syntax: <code>--overwrite_tiles, --overwrite-tiles</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="other-options">Other options</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Accepted syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--version</code></td>
+<td></td>
+<td><code>--version             show program's version number and exit</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="73-documentation-reliability-rules">7.3 Documentation reliability rules</h2>
+<ol>
+<li>CLI-confirmed: syntax and descriptions reproduced from the supplied <code>fastgc --help</code>.</li>
+<li>Source-verified: requires reading the corresponding implementation and regression tests.</li>
+<li>Benchmark-verified: requires reproducible sensor/dataset execution logs and output validation.</li>
+<li>Avoid universal “best settings” claims. Tile size, buffer, resolution, CHM methods and stream thresholds depend on sensor, density, terrain and purpose.</li>
+<li>FAST-GIS has its own command interface (<code>src/fastgc/gis/gis_cli.py</code>); its subcommands are <strong>not captured</strong> by this root CLI help.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

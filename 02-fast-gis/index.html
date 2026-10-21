@@ -1,0 +1,2986 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Practical FAST-GC LiDAR processing guide">
+      
+      
+      
+      
+        <link rel="prev" href="../02-installation/">
+      
+      
+        <link rel="next" href="../03-ground-classification/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Chapter 3: FAST-GIS - FAST-GC Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/fastgc-book.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-3-fast-gis-lidar-survey-sampling-plot-extraction-and-downstream-products" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FAST-GC Book" class="md-header__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FAST-GC Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 3: FAST-GIS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    FAST-GC Book
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1: Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Cross-Platform Installation, Configuration, and Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3: FAST-GIS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3: FAST-GIS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#31-scope-and-scientific-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Scope and scientific motivation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Scope and scientific motivation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-verified-capabilities-and-completeness-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.1 Verified capabilities and completeness checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-running-case-study-follow-plot-005-from-source-to-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The running case study: follow Plot 005 from source to measurements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#32-plot-geometry-and-processing-footprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Plot geometry and processing footprint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Plot geometry and processing footprint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-processing-core-and-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 Processing core and buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-sampling-techniques-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Sampling techniques at a glance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Sampling techniques at a glance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-random-sampling-complete-br01-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1 Random sampling: complete BR01 example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-plot-005-raw-and-processed-point-cloud-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2 Plot 005 raw and processed point-cloud views
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#34-continuoussystematic-plot-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Continuous/systematic plot sampling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-rough-height-stratified-circular-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Rough-height-stratified circular sampling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.5 Rough-height-stratified circular sampling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-a-create-the-required-dsm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step A — Create the required DSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-b-select-three-plots-per-rough-height-stratum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step B — Select three plots per rough-height stratum
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#36-imported-plot-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Imported plot definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.6 Imported plot definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#361-using-the-authors-own-field-plot-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.1 Using the author's own field-plot boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#37-survey-catalog-crs-multiple-source-files-and-spatial-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Survey catalog, CRS, multiple source files, and spatial integrity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#38-fast-gis-output-and-metadata-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 FAST-GIS output and metadata contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#39-from-clipping-to-downstream-plots-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 From clipping to downstream plots-run
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.9 From clipping to downstream plots-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#391-product-lineage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9.1 Product lineage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#310-ground-surface-and-canopy-height-product-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10 Ground, surface, and canopy-height product bundle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.10 Ground, surface, and canopy-height product bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3101-expanded-core-and-structure-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10.1 Expanded core and structure command
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#311-terrain-bundle-definition-measurement-and-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11 Terrain bundle: definition, measurement, and interpretation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.11 Terrain bundle: definition, measurement, and interpretation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3111-plot-005-terrain-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11.1 Plot 005 terrain interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#312-forest-structure-bundle-canopy-and-height-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12 Forest structure bundle: canopy and height statistics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.12 Forest structure bundle: canopy and height statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3121-plot-005-canopy-and-height-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12.1 Plot 005 canopy and height interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3122-plot-005-vertical-layer-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12.2 Plot 005 vertical-layer interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#313-local-3d-geometric-and-return-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.13 Local 3D geometric and return metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.13 Local 3D geometric and return metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3131-plot-005-local-geometry-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.13.1 Plot 005 local geometry interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#314-optional-individual-tree-and-multitemporal-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.14 Optional individual-tree and multitemporal bundles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#315-validation-known-errors-and-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15 Validation, known errors, and reproducibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.15 Validation, known errors, and reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3151-verified-operational-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.1 Verified operational lessons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3152-reproducibility-record-for-plot-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.2 Reproducibility record for Plot 005
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3153-figure-and-product-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.3 Figure and product inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3154-before-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.4 Before publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3155-reader-exercise-reproduce-the-plot-005-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.5 Reader exercise: reproduce the Plot 005 interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#316-summary-and-transition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.16 Summary and transition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#317-literature-foundations-and-metric-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17 Literature foundations and metric definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.17 Literature foundations and metric definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3171-reproducible-metric-definitions-in-fast_structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.1 Reproducible metric definitions in FAST_STRUCTURE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3172-three-dimensional-point-distribution-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.2 Three-dimensional point-distribution descriptors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3173-terrain-height-surfaces-and-sampling-scientific-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.3 Terrain, height surfaces and sampling: scientific context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3174-datasetfigurecommand-traceability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.4 Dataset–figure–command traceability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#318-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.18 References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-ground-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4: Ground Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-products/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 5: Products
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 6: Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 7: Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-3-fast-gis-lidar-survey-sampling-plot-extraction-and-downstream-products">Chapter 3 — FAST-GIS: LiDAR survey sampling, plot extraction, and downstream products</h1>
+<p><strong>Software scope:</strong> FAST-GC 0.2.1, <code>fastgc gis</code> and <code>fastgc --workflow plots-run</code>.
+<strong>Demonstration:</strong> BR01 Airborne Laser Scanning (ALS) survey, five randomly selected circular plots, Plot 005 visual examples.
+<strong>Reproducibility status:</strong> the five-plot <em>unbuffered</em> clipping run and its downstream raster-mask failure were observed in terminal logs. A <em>buffered</em> Plot 005 clipping metadata file supplied with the figures was independently inspected: <code>point_extent=core_plus_buffer</code>, <code>buffer_m=5</code>, <code>core_points=79,211</code>, <code>points_written=162,139</code>. The uploaded rasters demonstrate downstream product existence; a complete successful terminal log for all five buffered plots was not supplied. The two standalone elevation/height GeoTIFF labels remain provisional.</p>
+<h2 id="31-scope-and-scientific-motivation">3.1 Scope and scientific motivation</h2>
+<p>FAST-GIS bridges a georeferenced LiDAR survey and repeatable plot-level analysis. It discovers survey files, resolves survey geometry and coordinate reference systems (Coordinate Reference System (CRS)), selects or imports plot footprints, clips LAS/LAZ points, publishes a machine-readable collection, and hands that collection to FAST-GC for ground classification and forest/terrain products. Plot <em>core</em> and <em>processing buffer</em> are distinct: processing uses extra spatial context, while mapped raster results are masked back to the core polygon.</p>
+<p>FAST-GIS is <strong>not</strong> a ground classifier or canopy-height estimator. Those operations are performed by downstream FAST-GC workflows. This distinction is important for provenance, especially when rough-height sampling is used before ground classification.</p>
+<h3 id="311-verified-capabilities-and-completeness-checklist">3.1.1 Verified capabilities and completeness checklist</h3>
+<table>
+<thead>
+<tr>
+<th>FAST-GIS capability</th>
+<th>Source-confirmed behavior</th>
+<th>Included here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random sampling</td>
+<td>Observed XY occupancy, deterministic seed, nonoverlapping core+buffer footprints</td>
+<td>§3.3, worked example</td>
+</tr>
+<tr>
+<td>Continuous/systematic sampling</td>
+<td>Occupancy-aware lattice placement, overlap and phase search</td>
+<td>§3.4</td>
+</tr>
+<tr>
+<td>Rough-height-stratified sampling</td>
+<td>Three equal-sized strata from Digital Surface Model (DSM) minus local low-return proxy; <strong>not validated Canopy Height Model (CHM)</strong></td>
+<td>§3.5</td>
+</tr>
+<tr>
+<td>Imported plot boundaries</td>
+<td>KML, KMZ, SHP, GPKG, GeoJSON, CSV; optional vector layer</td>
+<td>§3.6</td>
+</tr>
+<tr>
+<td>Plot shapes</td>
+<td>Circle, hexagon, square, rectangle, ellipse; support varies by sampling mode</td>
+<td>§3.2</td>
+</tr>
+<tr>
+<td>Multiple survey tiles</td>
+<td>Survey catalog and compatible source clipping</td>
+<td>§3.7</td>
+</tr>
+<tr>
+<td>CRS handling</td>
+<td>Projected metre coordinates; <code>--source_crs</code> override for missing CRS / CSV centres</td>
+<td>§3.7</td>
+</tr>
+<tr>
+<td>Plot manifest and metadata</td>
+<td>Per-plot LAZ, JSON metadata, collection manifest, sampling provenance</td>
+<td>§3.8</td>
+</tr>
+<tr>
+<td>Plot-level downstream processing</td>
+<td><code>plots-run</code> consumes the collection and publishes products in it</td>
+<td>§3.9</td>
+</tr>
+<tr>
+<td>Core raster masking</td>
+<td>Uses authoritative <code>core_geometry</code>, <code>processing_crs</code>, <code>point_extent=core_plus_buffer</code></td>
+<td>§3.8–3.9</td>
+</tr>
+<tr>
+<td>Terrain/structure product interpretation</td>
+<td>Functional definitions, metrics, examples, limits</td>
+<td>§3.10–3.14</td>
+</tr>
+<tr>
+<td>Failure modes and validation</td>
+<td>Root path, buffer metadata, CRS, partial execution</td>
+<td>§3.15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scope boundary:</strong> FAST-GIS supports all five shapes for the geometry/import/continuous paths, but the current <code>rough_height_stratified</code> CLI explicitly restricts its shape to <strong>circle</strong>. For the random path, the integrated CLI passes <code>shape</code> and <code>radius</code>, but not the separate <code>width_m</code>, <code>height_m</code>, or <code>rotation_deg</code> options to the random sampler; those dimension controls are principally relevant to continuous layouts. Do not assume identical parameter behavior across modes.</p>
+<h3 id="the-running-case-study-follow-plot-005-from-source-to-measurements">The running case study: follow Plot 005 from source to measurements</h3>
+<p>This chapter uses <strong>one consistent observational example</strong>: Plot 005, selected as one of five random circular cores from the BR01 ALS survey. All point-cloud and raster panels below refer to <strong>this same Plot 005</strong>, unless explicitly labeled <em>schematic</em>. Readers can therefore compare canopy features, terrain patterns, point support, and vertical structure without switching study sites. The diagrams illustrating other shapes and sampling strategies are <strong>conceptual drawings</strong>, not additional BR01 observations.</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Same Plot 005 input/output</th>
+<th>What to inspect in the figure</th>
+<th>Scientific question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Survey and clipping</td>
+<td>BR01 source → <code>Plot_005.laz</code> + <code>Clip_Plot_005.json</code></td>
+<td>Circular core vs buffered neighborhood</td>
+<td>Which points belong to the measurement area?</td>
+</tr>
+<tr>
+<td>2. Ground classification</td>
+<td><code>FAST_GC</code></td>
+<td>Ground/non-ground colors in plan and profile</td>
+<td>Where is the terrain under the trees?</td>
+</tr>
+<tr>
+<td>3. Height normalization</td>
+<td><code>FAST_NORMALIZED</code></td>
+<td>Height above ground in profile</td>
+<td>How tall and vertically layered is vegetation?</td>
+</tr>
+<tr>
+<td>4. Surface and terrain</td>
+<td>Digital Elevation Model (DEM)/DSM/CHM and <code>FAST_TERRAIN</code></td>
+<td>Height surface vs slope, aspect, roughness</td>
+<td>How do topography and canopy differ?</td>
+</tr>
+<tr>
+<td>5. Canopy and structure</td>
+<td><code>FAST_STRUCTURE</code></td>
+<td>Cover, height, diversity and vertical gaps</td>
+<td>How complex is the forest within the plot?</td>
+</tr>
+<tr>
+<td>6. Geometric descriptors</td>
+<td>Structure geometry rasters</td>
+<td>Linearity, planarity, anisotropy</td>
+<td>What 3D arrangements are represented?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure-reading convention:</strong> Maps are north-up georeferenced views. Side views use elevation or normalized height as labeled. A raster cell's color represents the <strong>metric and units on that panel's own colorbar</strong>, not a common scale across products. White/no-data cells are not automatically zero vegetation. Each figure appears once in its relevant section. Where the MkDocs GLightbox plugin is enabled, clicking the image opens the original PNG for zooming.</p>
+<h2 id="32-plot-geometry-and-processing-footprint">3.2 Plot geometry and processing footprint</h2>
+<p>The plot <em>core</em> is the intended measurement area. A processing buffer of width  surrounds it; its points provide neighborhood context for classification and raster interpolation.</p>
+<table>
+<thead>
+<tr>
+<th>Geometry</th>
+<th>Definition / formula</th>
+<th>What it measures</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circle</td>
+<td>Circular area specified by centre and radius</td>
+<td>Fixed-radius area</td>
+<td>Inventory plots, local forest structure</td>
+</tr>
+<tr>
+<td>Square</td>
+<td>Four equal sides and right angles</td>
+<td>Equal-sided area</td>
+<td>Grid-compatible sampling</td>
+</tr>
+<tr>
+<td>Rectangle</td>
+<td>Four sides with specified width and height</td>
+<td>Elongated survey area</td>
+<td>Transects and edge studies</td>
+</tr>
+<tr>
+<td>Ellipse</td>
+<td>Oval specified by major and minor dimensions</td>
+<td>Directional oval area</td>
+<td>Elongated features</td>
+</tr>
+<tr>
+<td>Regular hexagon</td>
+<td>Six equal sides</td>
+<td>Compact six-sided area</td>
+<td>Spatially regular tessellation</td>
+</tr>
+</tbody>
+</table>
+<p>For a circular core with a 15 m radius, the nominal area is 706.86 square metres. A 5 m buffer expands the processing radius to 20 m and the nominal processing area to 1,256.64 square metres. These are geometric areas, not guarantees of observed point coverage.</p>
+<p><strong>Boundary interpretation:</strong> Point clouds used during processing can extend beyond the 15 m core. Core-masked raster products should not be mistaken for rectangular full-extent outputs or for a 20 m measurement plot.</p>
+<p><a href="../assets/chapter03/diagrams/plot_shapes.svg"><img alt="Schematic of five supported FAST-GIS plot shapes" src="../assets/chapter03/diagrams/plot_shapes.svg"></a></p>
+<p><em>Figure 3.A. Schematic plot geometries (not survey-derived measurements): circle, square, rectangle, ellipse, and regular hexagon. The centre dot denotes the plot reference point.</em></p>
+<h3 id="321-processing-core-and-buffer">3.2.1 Processing core and buffer</h3>
+<p><a href="../assets/chapter03/diagrams/core_buffer.svg"><img alt="Plot core and processing buffer schematic" src="../assets/chapter03/diagrams/core_buffer.svg"></a></p>
+<p><em>Figure 3.B. Measurement core (15 m radius) and 5 m processing buffer; conceptual diagram, not to scale with any survey map. The buffer supports computations; the core defines the reported plot.</em></p>
+<h2 id="33-sampling-techniques-at-a-glance">3.3 Sampling techniques at a glance</h2>
+<p><a href="../assets/chapter03/diagrams/sampling_methods.svg"><img alt="Schematic comparison of FAST-GIS sampling techniques" src="../assets/chapter03/diagrams/sampling_methods.svg"></a></p>
+<p><em>Figure 3.C. Conceptual placement strategies. Random sampling selects eligible locations reproducibly; continuous sampling follows a lattice; rough-height sampling balances plots across height strata; imported sampling honors externally supplied boundaries. Shapes and positions are illustrative, not actual BR01 plot coordinates.</em></p>
+<table>
+<thead>
+<tr>
+<th>Sampling mode</th>
+<th>How plot locations are chosen</th>
+<th>Typical question</th>
+<th>Input and principal options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>random</code></td>
+<td>Seeded selection within observed survey coverage, with footprint separation</td>
+<td>Representative plot selection</td>
+<td><code>--plots</code>, <code>--shape</code>, <code>--radius</code>, <code>--seed</code>, <code>--coverage_cell_m</code></td>
+</tr>
+<tr>
+<td><code>continuous</code></td>
+<td>Regular candidate lattice with overlap and phase evaluation</td>
+<td>Spatially systematic survey</td>
+<td><code>--shape</code>, <code>--width_m</code>, <code>--height_m</code>, <code>--overlap_m</code>, <code>--rotation_deg</code>, <code>--phase_steps</code></td>
+</tr>
+<tr>
+<td><code>rough_height_stratified</code></td>
+<td>Median rough height per candidate core, then balanced low/medium/high groups</td>
+<td>Coverage across canopy-height strata</td>
+<td>Existing <code>--dsm_path</code>, <code>--plots</code> divisible by 3, <code>--low_max</code>, <code>--medium_max</code>; circle only</td>
+</tr>
+<tr>
+<td><code>imported</code></td>
+<td>Uses investigator-supplied plot footprints or centres</td>
+<td>Reuse permanent inventory plots or field boundaries</td>
+<td><code>--plot_file</code>, optional <code>--layer</code>, <code>--source_crs</code>, <code>--buffer</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="331-random-sampling-complete-br01-example">3.3.1 Random sampling: complete BR01 example</h3>
+<p>Random sampling uses an observed-coverage grid to identify eligible centres, avoids overlaps between processing footprints, and uses a seed for reproducibility. The selected centres are therefore constrained by survey coverage rather than uniformly sampled from every coordinate inside the survey bounding box.</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc</span>
+
+<span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_Buffered_Test"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">random</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-plots</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-shape</span> <span class="n">circle</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-radius</span> <span class="n">15</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-seed</span> <span class="n">42</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--in_path</code></td>
+<td>Source LAS/LAZ file or survey directory</td>
+<td>Use georeferenced source data; here BR01 ALS</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>New published FAST-GIS workspace</td>
+<td>Choose a <strong>new</strong> directory; the sampler publishes transactionally</td>
+</tr>
+<tr>
+<td><code>--sensor_mode</code></td>
+<td>Sensor type</td>
+<td><code>ALS</code>, <code>Uncrewed Aerial Laser Scanning (ULS)</code>, or <code>Terrestrial Laser Scanning (TLS)</code>; here <code>ALS</code></td>
+</tr>
+<tr>
+<td><code>--sampling</code></td>
+<td>Selection strategy</td>
+<td><code>random</code>, <code>continuous</code>, <code>imported</code>, <code>rough_height_stratified</code></td>
+</tr>
+<tr>
+<td><code>--plots</code></td>
+<td>Requested plot count</td>
+<td>Here 5; default 30; placement may fail if coverage is insufficient</td>
+</tr>
+<tr>
+<td><code>--shape</code></td>
+<td>Core polygon geometry</td>
+<td>Here <code>circle</code>; defaults to <code>hexagon</code></td>
+</tr>
+<tr>
+<td><code>--radius</code></td>
+<td>Core radius, metres</td>
+<td>Here 15 m; default 15 m</td>
+</tr>
+<tr>
+<td><code>--buffer</code></td>
+<td>Extra processing support, metres</td>
+<td>Here 5 m; default 5 m; <strong>recommended for this core-masking example</strong></td>
+</tr>
+<tr>
+<td><code>--seed</code></td>
+<td>Random-number seed</td>
+<td>Here 42; default 42</td>
+</tr>
+<tr>
+<td><code>--coverage_cell_m</code></td>
+<td>XY occupancy-cell size</td>
+<td>Default 5 m; smaller cells can improve footprint screening at additional cost</td>
+</tr>
+<tr>
+<td><code>--chunk_size</code></td>
+<td>LAS points read per chunk</td>
+<td>Default 500,000; adjust for available memory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Observed evidence:</strong> A five-plot, zero-buffer run completed clipping in 9.76 s for the 12,531,758-point BR01 input, but subsequent <code>plots-run</code> stopped at raster masking. The uploaded buffered Plot 005 metadata establishes that the 5 m buffer configuration creates the expected <code>core_plus_buffer</code> contract. Do not present the 9.76 s timing as a benchmark for the buffered run.</p>
+<h3 id="332-plot-005-raw-and-processed-point-cloud-views">3.3.2 Plot 005 raw and processed point-cloud views</h3>
+<p><a href="../assets/chapter03/plot005/01_classified_points.png"><img alt="Plot 005 ground-classified point cloud, top and side views" src="../assets/chapter03/plot005/01_classified_points.png"></a></p>
+<p><em>Figure 3.1.</em> Plot 005, ground-classified point cloud in plan and profile. The displayed sample contains up to 35,000 points for legibility; the buffered plot file contains 162,139 points. Core plot geometry and buffered processing extent must be distinguished when interpreting point counts.</p>
+<p><a href="../assets/chapter03/plot005/02_elevation_points.png"><img alt="Plot 005 elevation-colored point cloud" src="../assets/chapter03/plot005/02_elevation_points.png"></a></p>
+<p><em>Figure 3.2.</em> Plan and side views of Plot 005 colored by elevation. Elevation represents absolute Z, not normalized canopy height.</p>
+<p><a href="../assets/chapter03/plot005/03_normalized_points.png"><img alt="Plot 005 normalized point cloud" src="../assets/chapter03/plot005/03_normalized_points.png"></a></p>
+<p><em>Figure 3.3.</em> Height-normalized Plot 005 points, illustrating vertical canopy structure relative to the terrain surface.</p>
+<h2 id="34-continuoussystematic-plot-sampling">3.4 Continuous/systematic plot sampling</h2>
+<p>The continuous sampler searches a spatial lattice of candidate plot centres and evaluates layout against observed XY coverage. <code>--overlap_m</code> specifies intended overlap between adjacent core footprints; <code>--phase_steps</code> controls lattice-offset search. Its purpose is regular spatial coverage, <strong>not</strong> a statistically independent random sample.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_Continuous"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">continuous</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-shape</span> <span class="n">square</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-width_m</span> <span class="n">30</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-height_m</span> <span class="n">30</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-overlap_m</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-phase_steps</span> <span class="n">10</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--sampling continuous</code></td>
+<td>Systematic layout selection</td>
+<td>Use for spatially distributed, regular plot coverage</td>
+</tr>
+<tr>
+<td><code>--shape square</code></td>
+<td>Plot footprint</td>
+<td>Circle, hexagon, square, rectangle, ellipse supported by geometry module</td>
+</tr>
+<tr>
+<td><code>--width_m</code></td>
+<td>Core width</td>
+<td>Default 30 m; controls square/rectangle/ellipse geometry</td>
+</tr>
+<tr>
+<td><code>--height_m</code></td>
+<td>Core height</td>
+<td>Default 30 m; used for rectangle/ellipse; square enforces equal sides</td>
+</tr>
+<tr>
+<td><code>--overlap_m</code></td>
+<td>Core-footprint overlap</td>
+<td>Default 5 m; must be nonnegative</td>
+</tr>
+<tr>
+<td><code>--buffer</code></td>
+<td>Additional processing context</td>
+<td>Default 5 m</td>
+</tr>
+<tr>
+<td><code>--phase_steps</code></td>
+<td>Candidate lattice phases</td>
+<td>Default 10; higher values can increase layout-search work</td>
+</tr>
+<tr>
+<td><code>--rotation_deg</code></td>
+<td>Footprint rotation</td>
+<td>Default 0°; relevant for supported continuous layouts</td>
+</tr>
+<tr>
+<td><code>--coverage_cell_m</code></td>
+<td>Observed occupancy grid resolution</td>
+<td>Default 5 m; trade-off between detail and cost</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation:</strong> This is a source-supported CLI example, not a run demonstrated by the uploaded BR01 outputs. It should be tested before attaching measured timing or plot-count claims.</p>
+<h2 id="35-rough-height-stratified-circular-sampling">3.5 Rough-height-stratified circular sampling</h2>
+<p>This mode samples low-, medium-, and high-rough-height plots <em>before</em> ground classification. It requires an existing DSM and a single LAS/LAZ source. The rough-height proxy subtracts a local low-return elevation estimate from the digital surface model and sets negative results to zero. This proxy is not a validated canopy-height model. The sampler classifies each candidate plot by the <strong>median</strong> valid rough-height value inside its circular core, and allocates an equal number of plots to three strata. The requested plot count must therefore be divisible by three.</p>
+<h3 id="step-a-create-the-required-dsm">Step A — Create the required DSM</h3>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-workflow</span> <span class="n">run</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_DSM"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_DSM</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-grid_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--workflow run</code></td>
+<td>Standard source-cloud workflow</td>
+<td>Used here to generate the DSM</td>
+</tr>
+<tr>
+<td><code>--products FAST_DSM</code></td>
+<td>Digital surface model</td>
+<td>Rough-height sampling requires an existing DSM GeoTIFF</td>
+</tr>
+<tr>
+<td><code>--grid_res</code></td>
+<td>Raster cell size, metres</td>
+<td>Here 1 m; finer resolution increases raster cells and memory</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Product output directory</td>
+<td>DSM must be accessible to the subsequent GIS command</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-b-select-three-plots-per-rough-height-stratum">Step B — Select three plots per rough-height stratum</h3>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_RoughHeight"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">rough_height_stratified</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-dsm_path</span> <span class="s2">"G:\FASTGC_BR01_DSM\FAST_DSM\ALS-on_BR01_2019-07-05_300m.tif"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-plots</span> <span class="n">9</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-shape</span> <span class="n">circle</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-radius</span> <span class="n">15</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-low_max</span> <span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-medium_max</span> <span class="n">15</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-seed</span> <span class="n">42</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dsm_path</code></td>
+<td>Existing DSM GeoTIFF</td>
+<td>Required; DSM and LAS must have matching embedded projected CRS</td>
+</tr>
+<tr>
+<td><code>--plots</code></td>
+<td>Total stratified sample</td>
+<td>Positive multiple of 3; here 9</td>
+</tr>
+<tr>
+<td><code>--shape circle</code></td>
+<td>Stratified core geometry</td>
+<td><strong>Only circle supported</strong> by this mode</td>
+</tr>
+<tr>
+<td><code>--low_max</code></td>
+<td>Low/medium threshold in rough-height metres</td>
+<td>Default 5 m; adjust for vegetation height distribution</td>
+</tr>
+<tr>
+<td><code>--medium_max</code></td>
+<td>Medium/high threshold</td>
+<td>Default 15 m; must exceed <code>low_max</code></td>
+</tr>
+<tr>
+<td><code>--radius</code>, <code>--buffer</code></td>
+<td>Core radius and processing support</td>
+<td>Defaults 15 m and 5 m</td>
+</tr>
+<tr>
+<td><code>--seed</code></td>
+<td>Reproducible candidate ordering</td>
+<td>Default 42</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Known limitation from the earlier BR01 attempt:</strong> LAS CRS WKT and DSM EPSG:25832 were not considered equal by the sampler's strict CRS comparison, even though both described ETRS89 / UTM zone 32N. The command above is <strong>illustrative, not validated on this specific input/DSM pair</strong>. Do not silently alter CRS metadata or describe a failed attempt as a successful demonstration.</p>
+<h2 id="36-imported-plot-definitions">3.6 Imported plot definitions</h2>
+<p>FAST-GIS accepts pre-existing plot polygons or centres from KML, KMZ, shapefile, GeoPackage, GeoJSON, and CSV. Vector coordinates must be interpretable in a known CRS; CSV centres may need <code>--source_crs</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_Imported"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">imported</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-plot_file</span> <span class="s2">"G:\Survey\BR01_plots.geojson"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--sampling imported</code></td>
+<td>Use externally defined plot geometries</td>
+<td>No random selection; footprints come from plot file</td>
+</tr>
+<tr>
+<td><code>--plot_file</code></td>
+<td>Input plot-definition file</td>
+<td>KML/KMZ/SHP/GPKG/GeoJSON/CSV; example path must exist</td>
+</tr>
+<tr>
+<td><code>--layer</code></td>
+<td>Layer selector</td>
+<td>Supply for a multilayer GeoPackage when necessary</td>
+</tr>
+<tr>
+<td><code>--source_crs</code></td>
+<td>CRS override</td>
+<td>For missing LAS/LAZ CRS or CSV plot centres</td>
+</tr>
+<tr>
+<td><code>--buffer</code></td>
+<td>Processing margin</td>
+<td>Default 5 m; preserve core polygon in metadata</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important:</strong> <code>G:\Survey\BR01_plots.geojson</code> is a placeholder for a real user-supplied plot file, not an observed artifact from this case study.</p>
+<h3 id="361-using-the-authors-own-field-plot-boundaries">3.6.1 Using the author's own field-plot boundaries</h3>
+<p>An investigator who already has mapped inventory plots does <strong>not</strong> need to generate random or continuous plots. The <code>imported</code> mode clips the LiDAR survey using the provided geometries. Supported inputs from the supplied FAST-GIS modules include <strong>ESRI Shapefile (<code>.shp</code> plus its <code>.shx</code>, <code>.dbf</code>, and preferably <code>.prj</code> companions), KML, KMZ, GeoJSON, GeoPackage (<code>.gpkg</code>), and CSV plot centres</strong>. Preserve unique plot identifiers and a valid coordinate reference system. Polygon inputs define their own core boundaries; CSV centre records need shape dimensions and, when needed, an explicit CRS. Do not interpret a centre-only CSV as an arbitrary polygon boundary.</p>
+<p><strong>Shapefile example (existing polygon boundaries):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_SHP_Plots"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">imported</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-plot_file</span> <span class="s2">"G:\Survey\permanent_plots.shp"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--plot_file</code></td>
+<td>Existing SHP polygon dataset</td>
+<td>Include shapefile companion files and a valid CRS</td>
+</tr>
+<tr>
+<td><code>--sampling imported</code></td>
+<td>Use authored plot geometry</td>
+<td>Does not resample locations</td>
+</tr>
+<tr>
+<td><code>--buffer</code></td>
+<td>Processing margin around imported core</td>
+<td>5 m in this example; preserves polygon as core</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Published collection workspace</td>
+<td>Use a fresh directory</td>
+</tr>
+<tr>
+<td><code>--in_path</code>, <code>--sensor_mode</code></td>
+<td>Source survey and sensor</td>
+<td>Keep consistent with survey</td>
+</tr>
+</tbody>
+</table>
+<p><strong>KML example (existing plot boundaries):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="n">gis</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\ALS_Jin\concurrent\BR01\ALS\ALS-on_BR01_2019-07-05_300m.laz"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-out_dir</span> <span class="s2">"G:\FASTGC_BR01_KML_Plots"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sampling</span> <span class="n">imported</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-plot_file</span> <span class="s2">"G:\Survey\permanent_plots.kml"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-buffer</span> <span class="n">5</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--plot_file</code></td>
+<td>KML boundary dataset</td>
+<td>Verify KML coordinates and polygon validity</td>
+</tr>
+<tr>
+<td><code>--sampling imported</code></td>
+<td>Honor original plot locations</td>
+<td>No random plot selection</td>
+</tr>
+<tr>
+<td><code>--buffer</code></td>
+<td>Processing support</td>
+<td>Here 5 m</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td>Separate output collection</td>
+<td>Avoid overwriting other sampling demonstrations</td>
+</tr>
+<tr>
+<td><code>--in_path</code>, <code>--sensor_mode</code></td>
+<td>Survey input and sensor type</td>
+<td>ALS example</td>
+</tr>
+</tbody>
+</table>
+<p>For a multilayer GeoPackage, add <code>--layer "plot_boundaries"</code> to select the appropriate layer. The examples above require the investigator's actual SHP or KML file; these placeholder paths are <strong>not</strong> part of the supplied BR01 dataset. After importing, run <code>plots-run</code> against the newly generated <code>ALS_plots</code> collection using the same command pattern shown in §3.9.</p>
+<h2 id="37-survey-catalog-crs-multiple-source-files-and-spatial-integrity">3.7 Survey catalog, CRS, multiple source files, and spatial integrity</h2>
+<p>The integrated source modules include survey discovery/cataloging, survey-region grouping, spatial access, clipping across compatible source files, and transactional publication. These support single-file and directory-based survey inputs.</p>
+<table>
+<thead>
+<tr>
+<th>Function / module</th>
+<th>Role</th>
+<th>Integrity or performance implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>survey_catalog.build_survey_catalog</code></td>
+<td>Discover LAS/LAZ survey files and CRS/bounds</td>
+<td>Record skipped/unresolved CRS tiles</td>
+</tr>
+<tr>
+<td><code>survey_regions</code> / <code>survey_index</code></td>
+<td>Group and index survey coverage</td>
+<td>Support coverage-aware sampling</td>
+</tr>
+<tr>
+<td><code>spatial_index</code> / <code>las_query</code></td>
+<td>Spatial candidate retrieval</td>
+<td>Reduce unnecessary scanning in relevant operations</td>
+</tr>
+<tr>
+<td><code>multi_clip.clip_las_sources</code></td>
+<td>Clip points from compatible source files</td>
+<td>Deduplicate overlapping source returns as implemented</td>
+</tr>
+<tr>
+<td><code>plot_io.import_plots</code></td>
+<td>Parse external plot geometry</td>
+<td>Preserve plot IDs and CRS transformation</td>
+</tr>
+<tr>
+<td><code>plot_runner.extract_plots</code></td>
+<td>Extract core+buffer points and metadata</td>
+<td>Publish per-plot LAZ and JSON</td>
+</tr>
+<tr>
+<td><code>publish.publish_directory</code></td>
+<td>Stage and publish completed collections</td>
+<td>Avoid exposing partially written collection roots</td>
+</tr>
+<tr>
+<td><code>core_mask.mask_plot_rasters_to_core</code></td>
+<td>Crop/mask rasters to core geometry</td>
+<td>Requires correct processing metadata</td>
+</tr>
+</tbody>
+</table>
+<p>Use a projected CRS with metre units for geometric parameters in metres. A nominally identical EPSG code does not always guarantee that differently encoded CRS representations pass the strict comparison used by a particular module.</p>
+<h2 id="38-fast-gis-output-and-metadata-contract">3.8 FAST-GIS output and metadata contract</h2>
+<p>A standard FAST-GIS run publishes a workspace containing the plot collection and supporting manifests:</p>
+<div class="highlight"><pre><span></span><code>G:\FASTGC_BR01_Buffered_Test\
+    sampling_manifest.json
+    workspace_manifest.json
+    sample_plots.geojson
+    ALS_plots\
+        plots_manifest.json
+        workspace_manifest.json
+        survey_catalog.json
+        survey_regions.json
+        Plot_001\
+            Plot_001.laz
+            Clip_Plot_001.json
+        ...
+        Plot_005\
+            Plot_005.laz
+            Clip_Plot_005.json
+</code></pre></div>
+<p>Some ancillary files vary by sampling method. <code>plots_manifest.json</code> is the authoritative collection index. Each plot record identifies the point file and its metadata file relative to the collection root; <code>plots-run</code> validates the schema, plot count, file paths, and plot IDs.</p>
+<p>The uploaded buffered Plot 005 metadata confirms:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Plot 005 value</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schema</code></td>
+<td><code>fastgc.gis.plot</code></td>
+<td>Identifies per-plot metadata</td>
+</tr>
+<tr>
+<td><code>sampling_method</code></td>
+<td><code>random_observed_coverage</code></td>
+<td>Records sampling method</td>
+</tr>
+<tr>
+<td><code>point_extent</code></td>
+<td><code>core_plus_buffer</code></td>
+<td>Required by raster core-mask stage</td>
+</tr>
+<tr>
+<td><code>buffer_m</code></td>
+<td>5.0</td>
+<td>Documents processing support</td>
+</tr>
+<tr>
+<td><code>core_points</code></td>
+<td>79,211</td>
+<td>Points inside measurement core</td>
+</tr>
+<tr>
+<td><code>points_written</code></td>
+<td>162,139</td>
+<td>Points in buffered processing cloud</td>
+</tr>
+<tr>
+<td><code>core_geometry</code></td>
+<td>Polygon geometry</td>
+<td>Authoritative raster mask</td>
+</tr>
+<tr>
+<td><code>processing_crs</code></td>
+<td>Embedded projected CRS WKT</td>
+<td>Coordinate system for masking</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Provenance rule:</strong> 162,139 buffered points are <strong>not</strong> the same as 79,211 core points. The former supports computation; the latter describes the nominal measurement plot. Do not report buffered counts as plot-core density.</p>
+<h2 id="39-from-clipping-to-downstream-plots-run">3.9 From clipping to downstream <code>plots-run</code></h2>
+<p>The downstream workflow should discover all plots from the collection manifest without manual JSON editing or plot-by-plot commands. It publishes results <strong>within the collection root</strong>; an unrelated <code>--out_dir</code> is rejected.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-workflow</span> <span class="n">plots-run</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\FASTGC_BR01_Buffered_Test\ALS_plots"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_CHM</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-grid_res</span> <span class="n">0</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-jobs</span> <span class="n">1</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--workflow plots-run</code></td>
+<td>Managed plot-collection processing</td>
+<td>Reads <code>plots_manifest.json</code> and per-plot JSON</td>
+</tr>
+<tr>
+<td><code>--in_path</code></td>
+<td>Collection root</td>
+<td>Must be the <code>ALS_plots</code> directory, not its parent</td>
+</tr>
+<tr>
+<td><code>--sensor_mode</code></td>
+<td>Sensor mode</td>
+<td>Must be consistent with the collection</td>
+</tr>
+<tr>
+<td><code>--products</code></td>
+<td>Requested products</td>
+<td>Here ground classification, DEM, CHM</td>
+</tr>
+<tr>
+<td><code>--grid_res</code></td>
+<td>Raster resolution</td>
+<td>Here 0.5 m; adjust for point density and plot scale</td>
+</tr>
+<tr>
+<td><code>--jobs</code></td>
+<td>Concurrent plot workers</td>
+<td>Here 1 for reproducible first validation</td>
+</tr>
+<tr>
+<td><code>--out_dir</code></td>
+<td><strong>Omit for managed collection</strong></td>
+<td>The CLI requires collection-root publication</td>
+</tr>
+</tbody>
+</table>
+<h3 id="391-product-lineage">3.9.1 Product lineage</h3>
+<ol>
+<li><strong>FAST-GIS:</strong> survey → sampled polygon cores → buffered LAZ + per-plot metadata + collection manifest.</li>
+<li><strong>FAST_GC:</strong> classify ground/non-ground returns in each plot.</li>
+<li><strong>FAST_DEM:</strong> interpolate terrain elevation from suitable ground support.</li>
+<li><strong>FAST_DSM:</strong> estimate surface elevation from appropriate returns when requested.</li>
+<li><strong>FAST_CHM:</strong> estimate height above terrain; method-dependent surface processing.</li>
+<li><strong>FAST_NORMALIZED:</strong> express point Z relative to terrain.</li>
+<li><strong>FAST_TERRAIN:</strong> derive terrain metrics from the DEM.</li>
+<li><strong>FAST_STRUCTURE:</strong> derive vertical and geometric forest descriptors.</li>
+<li><strong>FAST_ITD / FAST_TREECLOUDS:</strong> tree detection and individual-tree extraction, when requested and appropriately configured.</li>
+<li><strong>FAST_CHANGE:</strong> compare matched products from multiple surveys, not meaningful from a single-date plot alone.</li>
+</ol>
+<p>This is a <strong>conceptual lineage</strong>, not a claim that every downstream product depends only on the three initial rasters or that every product was successfully executed in the demonstrated command.</p>
+<h2 id="310-ground-surface-and-canopy-height-product-bundle">3.10 Ground, surface, and canopy-height product bundle</h2>
+<table>
+<thead>
+<tr>
+<th>Product / function</th>
+<th>Definition</th>
+<th>Metric and units</th>
+<th>Utility and cautions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FAST_GC</code> / ground classification</td>
+<td>Assign ground vs non-ground classification to LiDAR returns</td>
+<td>Point class codes, spatial distribution</td>
+<td>Terrain estimation, vegetation separation; not a raster</td>
+</tr>
+<tr>
+<td><code>FAST_DEM</code> / digital elevation model</td>
+<td>Terrain elevation interpolated from ground-classified LiDAR returns.</td>
+<td>Ground elevation (m)</td>
+<td>Slope, aspect, normalization; interpolation method matters</td>
+</tr>
+<tr>
+<td><code>FAST_DSM</code> / digital surface model</td>
+<td>Elevation of the upper visible surface represented by LiDAR returns.</td>
+<td>Surface elevation (m)</td>
+<td>Canopy top, built surface, rough-height proxy</td>
+</tr>
+<tr>
+<td><code>FAST_CHM</code> / canopy height model</td>
+<td>Canopy height above the local terrain, derived from surface and terrain elevations.</td>
+<td>Canopy height (m)</td>
+<td>Height distribution, tree detection; surface method matters</td>
+</tr>
+<tr>
+<td><code>FAST_NORMALIZED</code> / height normalization</td>
+<td>Each point’s elevation expressed relative to the terrain elevation at its horizontal location.</td>
+<td>Point height above terrain (m)</td>
+<td>Vertical profiles, understory/canopy structure</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../assets/chapter03/plot005/01_surface_models.png"><img alt="Plot 005 surface models" src="../assets/chapter03/plot005/01_surface_models.png"></a></p>
+<p><em>Figure 3.4.</em> Uploaded Plot 005 surface-model rasters. <strong>The two standalone GeoTIFF identities were inferred from ranges and are provisional</strong>; confirm against source product directories before final publication.</p>
+<h3 id="3101-expanded-core-and-structure-command">3.10.1 Expanded core and structure command</h3>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-workflow</span> <span class="n">plots-run</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-in_path</span> <span class="s2">"G:\FASTGC_BR01_Buffered_Test\ALS_plots"</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="n">FAST_DEM</span> <span class="n">FAST_DSM</span> <span class="n">FAST_CHM</span> <span class="n">FAST_NORMALIZED</span> <span class="n">FAST_TERRAIN</span> <span class="n">FAST_STRUCTURE</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-terrain_products</span> <span class="n">slope_degrees</span> <span class="n">aspect</span> <span class="n">hillshade</span> <span class="n">roughness</span> <span class="n">tri</span> <span class="n">tpi</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-structure_products</span> <span class="n">all</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-grid_res</span> <span class="n">0</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-structure_res</span> <span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-jobs</span> <span class="n">1</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Function / definition</th>
+<th>Configuration guidance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--products</code></td>
+<td>Select core and downstream bundles</td>
+<td>Use named products to avoid unintended workload</td>
+</tr>
+<tr>
+<td><code>--terrain_products</code></td>
+<td>Select DEM-derived metrics</td>
+<td>Here six terrain examples; <code>all</code> requests all available</td>
+</tr>
+<tr>
+<td><code>--structure_products</code></td>
+<td>Structure metric selector</td>
+<td>CLI advertises <code>all</code> plus selected named core metrics</td>
+</tr>
+<tr>
+<td><code>--structure_res</code></td>
+<td>Structural raster cell size</td>
+<td>Here 1.0 m; differs from <code>--grid_res</code></td>
+</tr>
+<tr>
+<td><code>--grid_res</code></td>
+<td>DEM/DSM/CHM resolution</td>
+<td>Here 0.5 m</td>
+</tr>
+<tr>
+<td><code>--jobs</code></td>
+<td>Plot parallelism</td>
+<td>Start at 1, benchmark before scaling</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Execution note:</strong> This command uses advertised CLI arguments and the correct managed collection root. The complete expanded run has not been validated by the terminal output supplied in this conversation.</p>
+<h2 id="311-terrain-bundle-definition-measurement-and-interpretation">3.11 Terrain bundle: definition, measurement, and interpretation</h2>
+<p>Terrain products are derived from the DEM. The descriptions below explain the scientific meaning of each product; exact raster kernels, window sizes, and boundary handling depend on the implementation.</p>
+<table>
+<thead>
+<tr>
+<th>Metric / CLI name</th>
+<th>Scientific definition</th>
+<th>Output</th>
+<th>Use at 15 m core</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Slope, <code>slope_degrees</code></td>
+<td>Steepness of the terrain surface, expressed as an angle in degrees.</td>
+<td>Degrees</td>
+<td>Steepness, microtopography, plot comparability</td>
+</tr>
+<tr>
+<td>Aspect, <code>aspect</code></td>
+<td>Orientation of maximum downslope gradient</td>
+<td>Azimuth (degrees)</td>
+<td>Insolation/exposure, ecological gradients</td>
+</tr>
+<tr>
+<td>Hillshade, <code>hillshade</code></td>
+<td>Illumination from slope, aspect, solar azimuth/altitude</td>
+<td>Relative intensity</td>
+<td>Terrain visualization</td>
+</tr>
+<tr>
+<td>Roughness, <code>roughness</code></td>
+<td>Local variation in elevation, per implementation</td>
+<td>Terrain heterogeneity</td>
+<td>Surface complexity; window and units require method check</td>
+</tr>
+<tr>
+<td>Terrain Ruggedness Index (TRI), <code>tri</code></td>
+<td>Local elevation difference relative to neighbors</td>
+<td>Terrain ruggedness</td>
+<td>Terrain heterogeneity</td>
+</tr>
+<tr>
+<td>Topographic Position Index (TPI), <code>tpi</code></td>
+<td>Difference between a cell’s elevation and the mean elevation of its neighborhood.</td>
+<td>Relative elevation (m)</td>
+<td>Ridges, depressions, microsites</td>
+</tr>
+<tr>
+<td>Profile curvature</td>
+<td>Surface curvature in downslope direction</td>
+<td>Curvature</td>
+<td>Flow acceleration/erosion tendencies</td>
+</tr>
+<tr>
+<td>Planform curvature</td>
+<td>Curvature perpendicular to slope</td>
+<td>Curvature</td>
+<td>Flow convergence/divergence</td>
+</tr>
+<tr>
+<td>Topographic Wetness Index (TWI), <code>twi</code></td>
+<td>Terrain wetness potential combining local slope and upslope contributing area.</td>
+<td>Index</td>
+<td>Potential wetness; requires appropriate contributing area</td>
+</tr>
+<tr>
+<td>Flow accumulation</td>
+<td>Number/area of upslope cells reaching cell</td>
+<td>Cells or area</td>
+<td>Drainage analysis; plot-edge artifacts important</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../assets/chapter03/plot005/02_terrain.png"><img alt="Plot 005 terrain derivatives" src="../assets/chapter03/plot005/02_terrain.png"></a></p>
+<p><em>Figure 3.5.</em> Plot 005 slope, aspect, hillshade, roughness, TRI, and TPI. Each panel uses its own legend; compare spatial patterns rather than raw color values between different metrics.</p>
+<p><strong>Small-plot caution:</strong> hydrological accumulation, watershed boundaries, stream order, and wetness indices are strongly influenced by the plot boundary. For defensible hydrology, compute these on a larger surrounding DEM and extract the core plot afterward.</p>
+<h3 id="3111-plot-005-terrain-interpretation">3.11.1 Plot 005 terrain interpretation</h3>
+<p>The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.</p>
+<table>
+<thead>
+<tr>
+<th>Raster product</th>
+<th style="text-align: right;">Plot 005 observed range</th>
+<th>How to use this Plot 005 figure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>slope_degrees</code></td>
+<td style="text-align: right;">0.00–49.30</td>
+<td>Locate steep and gentle parts of this core; edge derivatives require caution.</td>
+</tr>
+<tr>
+<td><code>aspect</code></td>
+<td style="text-align: right;">0.00–359.81</td>
+<td>Compare orientation, not numeric magnitude, with slope.</td>
+</tr>
+<tr>
+<td><code>hillshade</code></td>
+<td style="text-align: right;">108.79–254.62</td>
+<td>Recognize terrain shape visually; illumination is not measured sunlight.</td>
+</tr>
+<tr>
+<td><code>roughness</code></td>
+<td style="text-align: right;">0.01–1.11</td>
+<td>Identify local variation in terrain elevation.</td>
+</tr>
+<tr>
+<td><code>tri</code></td>
+<td style="text-align: right;">0.02–1.31</td>
+<td>Compare spatial terrain ruggedness.</td>
+</tr>
+<tr>
+<td><code>tpi</code></td>
+<td style="text-align: right;">-0.36–0.38</td>
+<td>Positive vs negative local relative elevation.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation for Plot 005.</strong> Inspect slope and hillshade together to locate topographic transitions. Use TPI and roughness to assess whether these are local convexities or irregular patches. Avoid interpreting small-plot flow routing as watershed-scale hydrology.</p>
+<h2 id="312-forest-structure-bundle-canopy-and-height-statistics">3.12 Forest structure bundle: canopy and height statistics</h2>
+<p>The uploaded FAST_STRUCTURE archive contains many more raster descriptors than the eight named core metrics exposed by the basic CLI selector. The table documents the actual displayed product families. Descriptions explain what the metrics measure; exact thresholds and binning follow the source implementation.</p>
+<table>
+<thead>
+<tr>
+<th>Metric / figure filename</th>
+<th>Definition / representative definition</th>
+<th>Measurement</th>
+<th>Why useful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Canopy cover, <code>canopy_cover</code></td>
+<td>Fraction of returns/area meeting canopy criterion, per configured method</td>
+<td>Fraction or percent (verify raster scaling)</td>
+<td>Canopy occupancy and openness</td>
+</tr>
+<tr>
+<td>Mean height, <code>z_mean</code></td>
+<td>Mean height of vegetation returns above the terrain</td>
+<td>m</td>
+<td>Typical vegetation height</td>
+</tr>
+<tr>
+<td>Maximum height, <code>z_max</code></td>
+<td>Highest vegetation return above the terrain in each cell</td>
+<td>m</td>
+<td>Upper canopy height</td>
+</tr>
+<tr>
+<td>Height SD, <code>z_sd</code></td>
+<td>Standard deviation of vegetation-return heights</td>
+<td>m</td>
+<td>Vertical heterogeneity</td>
+</tr>
+<tr>
+<td>Point count, <code>n_points</code></td>
+<td>Number of eligible vegetation returns in a cell</td>
+<td>Count</td>
+<td>Sampling support and data density</td>
+</tr>
+<tr>
+<td>Point density, <code>point_density</code></td>
+<td>Eligible vegetation returns per square metre</td>
+<td>Points/m²</td>
+<td>Coverage and measurement support</td>
+</tr>
+<tr>
+<td>Foliage Height Diversity (FHD), <code>FHD</code></td>
+<td>Shannon diversity of LiDAR returns distributed across occupied vertical height intervals.</td>
+<td>Index</td>
+<td>Vertical foliage distribution</td>
+</tr>
+<tr>
+<td>Vertical Complexity Index (VCI), <code>VCI</code></td>
+<td>Vertical entropy normalized by the number of occupied height intervals.</td>
+<td>Index</td>
+<td>Comparison across vertical strata</td>
+</tr>
+<tr>
+<td>Height percentiles, <code>z_p50</code>, <code>z_p95</code>, <code>z_p99</code></td>
+<td>Quantiles of normalized height</td>
+<td>m</td>
+<td>Median, upper, and extreme canopy structure</td>
+</tr>
+<tr>
+<td>Vertical entropy, <code>vertical_entropy</code></td>
+<td>Entropy of vertical occupancy distribution</td>
+<td>Index</td>
+<td>Canopy layering</td>
+</tr>
+<tr>
+<td>Vertical evenness</td>
+<td>Evenness across occupied height bins</td>
+<td>Index</td>
+<td>Balanced vs concentrated foliage</td>
+</tr>
+<tr>
+<td>Vertical richness</td>
+<td>Number of occupied height strata</td>
+<td>Count</td>
+<td>Structural layering</td>
+</tr>
+<tr>
+<td>Vertical occupancy fraction</td>
+<td>Occupied fraction of possible height bins</td>
+<td>Fraction</td>
+<td>Vertical filling</td>
+</tr>
+<tr>
+<td>Maximum vertical gap</td>
+<td>Largest unoccupied vertical interval</td>
+<td>m</td>
+<td>Vertical discontinuity</td>
+</tr>
+<tr>
+<td>Gap count / fraction</td>
+<td>Number or proportion of empty height intervals</td>
+<td>Count / fraction</td>
+<td>Canopy discontinuity</td>
+</tr>
+<tr>
+<td>Effective layers</td>
+<td>Diversity-derived effective number of occupied layers</td>
+<td>Index / count-equivalent</td>
+<td>Structural complexity</td>
+</tr>
+<tr>
+<td>Vertical dominance</td>
+<td>Concentration of occupancy in one/few layers</td>
+<td>Index</td>
+<td>Layer dominance</td>
+</tr>
+<tr>
+<td>Vertical Simpson</td>
+<td>Simpson-type vertical diversity</td>
+<td>Index</td>
+<td>Vertical diversity</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../assets/chapter03/plot005/03_structure_core.png"><img alt="Plot 005 core structural products" src="../assets/chapter03/plot005/03_structure_core.png"></a></p>
+<p><em>Figure 3.6.</em> Core structural metrics, including canopy cover, point count/density, normalized height statistics, FHD and VCI.</p>
+<p><a href="../assets/chapter03/plot005/04_structure_vertical.png"><img alt="Plot 005 vertical structural products" src="../assets/chapter03/plot005/04_structure_vertical.png"></a></p>
+<p><em>Figure 3.7.</em> Vertical structure metrics derived from the uploaded Plot 005 rasters.</p>
+<p><strong>Methodological qualification:</strong> Exact FHD/VCI bin definitions, height thresholds, return selection, scaling, and occupancy definitions must be taken from the installed structure implementation or its output metadata before using numerical values in scientific comparisons.</p>
+<h3 id="3121-plot-005-canopy-and-height-interpretation">3.12.1 Plot 005 canopy and height interpretation</h3>
+<p>The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.</p>
+<table>
+<thead>
+<tr>
+<th>Raster product</th>
+<th style="text-align: right;">Plot 005 observed range</th>
+<th>How to use this Plot 005 figure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>canopy_cover</code></td>
+<td style="text-align: right;">Proportion of all valid returns exceeding the canopy-height threshold.</td>
+<td>Identify covered and open cells; displayed range is fractional.</td>
+</tr>
+<tr>
+<td><code>z_mean</code></td>
+<td style="text-align: right;">Average normalized vegetation-return height.</td>
+<td>Typical return height above terrain.</td>
+</tr>
+<tr>
+<td><code>z_max</code></td>
+<td style="text-align: right;">2.04–43.49</td>
+<td>Upper-canopy height and tall-tree patches.</td>
+</tr>
+<tr>
+<td><code>z_sd</code></td>
+<td style="text-align: right;">Population standard deviation of normalized vegetation-return heights.</td>
+<td>Vertical height heterogeneity.</td>
+</tr>
+<tr>
+<td><code>FHD</code></td>
+<td style="text-align: right;">0.00–3.23</td>
+<td>Diversity of returns among vertical bins.</td>
+</tr>
+<tr>
+<td><code>VCI</code></td>
+<td style="text-align: right;">0.00–1.00</td>
+<td>Relative vertical complexity; check algorithm-specific binning.</td>
+</tr>
+<tr>
+<td><code>n_points</code></td>
+<td style="text-align: right;">Number of returns meeting the minimum vegetation-height threshold.</td>
+<td>Point support behind each metric.</td>
+</tr>
+<tr>
+<td><code>point_density</code></td>
+<td style="text-align: right;">Number of eligible vegetation returns per square metre.</td>
+<td>Return density; do not equate with tree density.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation for Plot 005.</strong> Compare the CHM/height map with canopy cover and z_max to distinguish canopy presence from canopy height. Read FHD and VCI alongside n_points: apparent low complexity in a poorly sampled cell may reflect weak return support, not a simple canopy.</p>
+<h3 id="3122-plot-005-vertical-layer-interpretation">3.12.2 Plot 005 vertical-layer interpretation</h3>
+<p>The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.</p>
+<table>
+<thead>
+<tr>
+<th>Raster product</th>
+<th style="text-align: right;">Plot 005 observed range</th>
+<th>How to use this Plot 005 figure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vertical_richness</code></td>
+<td style="text-align: right;">Count of vertical height intervals containing at least one return.</td>
+<td>How many height layers contain returns.</td>
+</tr>
+<tr>
+<td><code>vertical_occupancy_fraction</code></td>
+<td style="text-align: right;">Proportion of height intervals occupied between the lowest and highest occupied intervals.</td>
+<td>What fraction of vertical bins is occupied.</td>
+</tr>
+<tr>
+<td><code>vertical_gap_fraction</code></td>
+<td style="text-align: right;">Proportion of empty intervals within the occupied vertical span.</td>
+<td>How much of the vertical profile is empty.</td>
+</tr>
+<tr>
+<td><code>max_vertical_gap_m</code></td>
+<td style="text-align: right;">Height in metres of the longest internal empty interval sequence.</td>
+<td>Largest vertical discontinuity.</td>
+</tr>
+<tr>
+<td><code>z_p50</code></td>
+<td style="text-align: right;">2.04–38.43</td>
+<td>Median normalized height.</td>
+</tr>
+<tr>
+<td><code>z_p95</code></td>
+<td style="text-align: right;">2.04–43.01</td>
+<td>Upper canopy height distribution.</td>
+</tr>
+<tr>
+<td><code>z_p99</code></td>
+<td style="text-align: right;">2.04–43.30</td>
+<td>Near-maximum height, less sensitive than absolute max.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation for Plot 005.</strong> Vertical richness and occupancy reflect how returns populate height bins. A large vertical gap may indicate an understory–overstory separation, but the result depends on bin size and return density. Height percentiles describe distributions, not individually segmented tree heights.</p>
+<h2 id="313-local-3d-geometric-and-return-metrics">3.13 Local 3D geometric and return metrics</h2>
+<p>The uploaded structure archive also includes geometric descriptors. These describe how points are distributed along their three principal spatial directions. Their values depend on the local point distribution and its sampling support.</p>
+<p>The descriptions below explain what the descriptors measure. Their values depend on the implementation, neighborhood, and available point density.</p>
+<table>
+<thead>
+<tr>
+<th>Descriptor</th>
+<th>Definition</th>
+<th>What it measures</th>
+<th>Forestry application</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linearity</td>
+<td>Extent to which points follow one principal spatial direction.</td>
+<td>1D-like point organization</td>
+<td>Stems, branches, elongated structures</td>
+</tr>
+<tr>
+<td>Planarity</td>
+<td>Extent to which points occupy a locally planar arrangement.</td>
+<td>2D-like local arrangement</td>
+<td>Planar patches, surfaces</td>
+</tr>
+<tr>
+<td>Sphericity</td>
+<td>Extent to which local points are distributed similarly across three spatial directions.</td>
+<td>3D isotropic spread</td>
+<td>Volumetric foliage and complex returns</td>
+</tr>
+<tr>
+<td>Anisotropy</td>
+<td>Strength of directional differences in local point geometry.</td>
+<td>Directional organization</td>
+<td>Shape differentiation</td>
+</tr>
+<tr>
+<td>Omnivariance</td>
+<td>Combined spread of the local point distribution along three principal directions.</td>
+<td>Local 3D spread</td>
+<td>Geometric complexity</td>
+</tr>
+<tr>
+<td>Eigenentropy</td>
+<td>Diversity of normalized covariance eigenvalues; describes geometric disorder.</td>
+<td>Eigenvalue distribution</td>
+<td>Geometric disorder</td>
+</tr>
+<tr>
+<td>Surface variation</td>
+<td>Relative importance of the smallest covariance eigenvalue; departure from a local plane.</td>
+<td>Departure from local plane</td>
+<td>Surface irregularity</td>
+</tr>
+<tr>
+<td>Normal inclination</td>
+<td>Angle of local surface normal</td>
+<td>Degrees</td>
+<td>Surface orientation</td>
+</tr>
+<tr>
+<td>Sigma Z</td>
+<td>Local standard deviation of Z</td>
+<td>m</td>
+<td>Vertical roughness</td>
+</tr>
+<tr>
+<td>Z skewness / kurtosis</td>
+<td>Third/fourth standardized moments</td>
+<td>Dimensionless</td>
+<td>Shape of vertical return distribution</td>
+</tr>
+<tr>
+<td>Mean intensity</td>
+<td>Mean LiDAR intensity</td>
+<td>Sensor-dependent</td>
+<td>Return-strength variation; calibration caveats</td>
+</tr>
+<tr>
+<td>First-return fraction</td>
+<td>First returns / eligible returns</td>
+<td>Fraction</td>
+<td>Upper-surface sampling</td>
+</tr>
+<tr>
+<td>Multi-return fraction</td>
+<td>Multi-return points / eligible returns</td>
+<td>Fraction</td>
+<td>Canopy penetration / return structure</td>
+</tr>
+<tr>
+<td>Vegetation point density</td>
+<td>Vegetation returns / area</td>
+<td>Points/m²</td>
+<td>Vegetation support and spatial heterogeneity</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../assets/chapter03/plot005/05_structure_geometry.png"><img alt="Plot 005 geometry descriptors" src="../assets/chapter03/plot005/05_structure_geometry.png"></a></p>
+<p><em>Figure 3.8.</em> Local geometric and return-based descriptors of Plot 005. Interpret these alongside point density and sampling geometry; they are not direct species or stem-class labels.</p>
+<h3 id="3131-plot-005-local-geometry-interpretation">3.13.1 Plot 005 local geometry interpretation</h3>
+<p>The ranges below are minimum–maximum values among valid Plot 005 raster cells, not plot means or accuracy scores. Refer to the corresponding figure above for spatial interpretation.</p>
+<table>
+<thead>
+<tr>
+<th>Raster product</th>
+<th style="text-align: right;">Plot 005 observed range</th>
+<th>How to use this Plot 005 figure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>anisotropy</code></td>
+<td style="text-align: right;">0.29–1.00</td>
+<td>Directional organization of local 3D points.</td>
+</tr>
+<tr>
+<td><code>eigenentropy</code></td>
+<td style="text-align: right;">0.00–1.09</td>
+<td>Diversity of local covariance eigenvalues.</td>
+</tr>
+<tr>
+<td><code>surface_variation</code></td>
+<td style="text-align: right;">Relative contribution of the smallest covariance eigenvalue, indicating deviation from planarity.</td>
+<td>Departure from locally planar geometry.</td>
+</tr>
+<tr>
+<td><code>normal_inclination_deg</code></td>
+<td style="text-align: right;">8.62–90.00</td>
+<td>Local orientation.</td>
+</tr>
+<tr>
+<td><code>first_return_fraction</code></td>
+<td style="text-align: right;">0.00–1.00</td>
+<td>Fraction of first returns.</td>
+</tr>
+<tr>
+<td><code>multi_return_fraction</code></td>
+<td style="text-align: right;">0.00–1.00</td>
+<td>Return multiplicity / canopy penetration context.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation for Plot 005.</strong> Compare linearity, planarity and sphericity as relative indicators of 1D, 2D and 3D point arrangements. These are not directly validated stem, branch, or foliage classes; check local point density before inferring structure.</p>
+<h2 id="314-optional-individual-tree-and-multitemporal-bundles">3.14 Optional individual-tree and multitemporal bundles</h2>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Function</th>
+<th>Output metric</th>
+<th>Appropriate use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FAST_ITD</code></td>
+<td>Detect individual-tree candidates / crowns from CHM or other method-specific inputs</td>
+<td>Tree location, crown geometry, tree count</td>
+<td>Tree density, crown spacing, inventory support</td>
+</tr>
+<tr>
+<td><code>FAST_TREECLOUDS</code></td>
+<td>Extract point subsets associated with trees</td>
+<td>Per-tree point clouds</td>
+<td>Tree geometry and downstream modeling</td>
+</tr>
+<tr>
+<td><code>FAST_CHANGE</code></td>
+<td>Compare aligned DEM/DSM/CHM/terrain products across surveys</td>
+<td>Change magnitude, per-cell differences</td>
+<td>Disturbance, canopy change, terrain change</td>
+</tr>
+</tbody>
+</table>
+<p>These products are available in the CLI but <strong>were not established as completed outputs in the supplied Plot 005 figure package</strong>. A single-date BR01 plot does not support a multitemporal change claim.</p>
+<h2 id="315-validation-known-errors-and-reproducibility">3.15 Validation, known errors, and reproducibility</h2>
+<h3 id="3151-verified-operational-lessons">3.15.1 Verified operational lessons</h3>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Explanation established by CLI/logs</th>
+<th>Correct practice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>No LAS/LAZ files found for external plots-run input</code></td>
+<td>Input pointed at workspace parent, not managed collection</td>
+<td>Use <code>...\ALS_plots</code> containing <code>plots_manifest.json</code></td>
+</tr>
+<tr>
+<td><code>--out_dir must be omitted or equal to ... collection root</code></td>
+<td>Managed <code>plots-run</code> publishes inside collection</td>
+<td>Omit <code>--out_dir</code></td>
+</tr>
+<tr>
+<td><code>Core raster masking requires point_extent=core_plus_buffer</code></td>
+<td>Unbuffered metadata did not satisfy core-mask contract</td>
+<td>For this tested workflow use a positive buffer; validate metadata</td>
+</tr>
+<tr>
+<td><code>LAS and DSM must have matching embedded projected CRS</code></td>
+<td>Strict rough-height sampler CRS comparison failed</td>
+<td>Validate embedded CRS before running; avoid silent relabeling</td>
+</tr>
+<tr>
+<td>CHM <code>ok 1</code> before traceback</td>
+<td>One stage completed, but overall workflow failed</td>
+<td>Treat traceback/exit status as authoritative, verify all plots</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3152-reproducibility-record-for-plot-005">3.15.2 Reproducibility record for Plot 005</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Observed value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Survey</td>
+<td>BR01 ALS</td>
+</tr>
+<tr>
+<td>Source point count</td>
+<td>12,531,758 (terminal output)</td>
+</tr>
+<tr>
+<td>Plot count</td>
+<td>5 random circular plots</td>
+</tr>
+<tr>
+<td>Core radius</td>
+<td>15 m</td>
+</tr>
+<tr>
+<td>Processing buffer</td>
+<td>5 m in uploaded buffered Plot 005 metadata</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td>42</td>
+</tr>
+<tr>
+<td>Plot 005 core points</td>
+<td>79,211</td>
+</tr>
+<tr>
+<td>Plot 005 buffered points</td>
+<td>162,139</td>
+</tr>
+<tr>
+<td>Core raster masking contract</td>
+<td><code>point_extent=core_plus_buffer</code></td>
+</tr>
+<tr>
+<td>Raster display</td>
+<td>Original georeferenced valid pixels, individual colorbars</td>
+</tr>
+<tr>
+<td>Surface model identities</td>
+<td>DSM/CHM labels provisional for two standalone GeoTIFFs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3153-figure-and-product-inventory">3.15.3 Figure and product inventory</h3>
+<p>The companion file <a href="../assets/chapter03/plot005/plot005_product_inventory.csv"><code>plot005_product_inventory.csv</code></a> records the available raster filenames, resolutions, valid-pixel counts, and value ranges. The companion <a href="../assets/chapter03/plot005/plot005_provenance/"><code>plot005_provenance.md</code></a> records figure-production provenance. The figures are <strong>static assets</strong>: MkDocs does not rerun point-cloud processing.</p>
+<h3 id="3154-before-publication">3.15.4 Before publication</h3>
+<ul>
+<li>[x] Verify integrated FAST-GIS modes, shapes, and CLI options against supplied source modules.</li>
+<li>[x] Include random, continuous, imported, and rough-height-stratified examples.</li>
+<li>[x] Explain core vs buffered processing and JSON-driven <code>plots-run</code>.</li>
+<li>[x] Include Plot 005 point-cloud, terrain, canopy/surface, structure, and geometry figures.</li>
+<li>[x] Include function/definition/metric/usefulness tables and parameter tables after each command.</li>
+<li>[ ] Verify exact identity of the two standalone GeoTIFFs (DSM vs CHM) from original product paths.</li>
+<li>[ ] Attach the <strong>successful complete</strong> buffered five-plot <code>plots-run</code> terminal log, if available.</li>
+<li>[ ] Verify exact kernel conventions and units for derived structure indices before claiming implementation-specific equations.</li>
+<li>[ ] Execute and document continuous, imported, and rough-height examples if the book is to claim these examples are empirically validated.</li>
+<li>[ ] Render this chapter with the installed MkDocs theme and visually inspect captions, math, and image widths.</li>
+</ul>
+<h3 id="3155-reader-exercise-reproduce-the-plot-005-interpretation">3.15.5 Reader exercise: reproduce the Plot 005 interpretation</h3>
+<p>After running the random circular clipping and managed <code>plots-run</code> commands in §§3.3 and 3.9, open <code>ALS_plots/Plot_005/Clip_Plot_005.json</code>. Check the plot ID, <code>point_extent</code>, <code>core_geometry</code>, <code>buffer_m</code>, <code>core_points</code>, and <code>points_written</code>. Confirm that <code>plots_manifest.json</code> identifies this plot and its LAZ file. Next compare Figures 3.1–3.3: explain the difference between absolute elevation, ground class, and normalized height. Finally examine the terrain, structure, vertical-layer, and geometry figures presented once in their respective sections and answer:</p>
+<ol>
+<li>Where are the steepest cells in Plot 005, and do they correspond to high or low TPI?</li>
+<li>Which cells have the tallest returns? Do they also have high canopy cover?</li>
+<li>Where is vertical diversity high or low, and does point density support that interpretation?</li>
+<li>Do linearity and planarity maps describe the same spatial features?</li>
+<li>Which findings are constrained by the 15 m core boundary or the available return density?</li>
+</ol>
+<p>Use the companion CSV for numeric range checks, and do <strong>not</strong> assume that colors can be compared across metrics without reading each legend. The exercise deliberately uses the <strong>same Plot 005</strong> throughout.</p>
+<h2 id="316-summary-and-transition">3.16 Summary and transition</h2>
+<p>FAST-GIS turns spatially extensive ALS/ULS/TLS surveys into reproducible, machine-readable plot collections. The principal scientific safeguards are coverage-aware selection, explicit projected coordinates, separate core and buffer geometries, complete per-plot provenance, and managed downstream product publication. Plot 005 demonstrates how ground-classified and normalized points can support DEM/DSM/CHM surfaces, terrain metrics, and detailed vertical/geometric forest structure. The next chapter develops the ground-classification algorithm and its sensor-specific behavior in detail.</p>
+<h2 id="317-literature-foundations-and-metric-definitions">3.17 Literature foundations and metric definitions</h2>
+<p>The purpose of the references below is to explain <strong>scientific foundations and interpretation</strong>. A citation to an established algorithm is not a claim that FAST-GC copied that algorithm. Implementation-specific definitions below were checked against the bundled <code>FAST-GC/src/fastgc/structure.py</code> and <code>FAST-GC/src/fastgc/gis/gis_cli.py</code> source snapshot; terrain citations provide context, and the exact terrain kernels must be checked separately before describing an individual definition as FAST-GC-specific.</p>
+<h3 id="3171-reproducible-metric-definitions-in-fast_structure">3.17.1 Reproducible metric definitions in FAST_STRUCTURE</h3>
+<p>The following metrics use height-normalized LiDAR returns. The source implementation distinguishes all valid returns from vegetation returns selected using a configured minimum height threshold. Vertical metrics divide the height profile into intervals and describe the distribution of returns among those intervals.</p>
+<table>
+<thead>
+<tr>
+<th>FAST_STRUCTURE metric</th>
+<th>Implementation-specific definition</th>
+<th>Output and interpretive use</th>
+<th>Literature basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>canopy_cover</code></td>
+<td>Proportion of all valid returns exceeding the canopy-height threshold.</td>
+<td>Fraction of all finite returns exceeding canopy threshold; <strong>return-based cover proxy</strong>, not independently calibrated crown area</td>
+<td>[R3], [R4]</td>
+</tr>
+<tr>
+<td><code>n_points_all</code></td>
+<td>Number of all valid returns in a raster cell.</td>
+<td>All-point support per cell</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>n_points</code></td>
+<td>Number of returns meeting the minimum vegetation-height threshold.</td>
+<td>Vegetation-height point support</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>point_density</code></td>
+<td>Number of eligible vegetation returns per square metre.</td>
+<td>Vegetation returns/m²</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>z_mean</code></td>
+<td>Average normalized vegetation-return height.</td>
+<td>Mean vegetation-return height, m</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>z_sd</code></td>
+<td>Population standard deviation of normalized vegetation-return heights.</td>
+<td>Height variability, m</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>z_p50</code>, <code>z_p95</code>, <code>z_p99</code></td>
+<td><code>np.percentile</code> of vegetation heights</td>
+<td>Median, upper-canopy and near-maximum return heights, m</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>vertical_entropy</code> = <code>FHD</code></td>
+<td>Shannon diversity of LiDAR returns distributed across occupied vertical height intervals.</td>
+<td>Shannon entropy of occupied height bins</td>
+<td>[R1], [R2], [R3]</td>
+</tr>
+<tr>
+<td><code>vertical_evenness</code> = <code>VCI</code></td>
+<td>Vertical entropy normalized by the number of occupied height intervals.</td>
+<td><strong>Normalized by occupied-bin count</strong>, not total possible bins</td>
+<td>[R1], [R2]</td>
+</tr>
+<tr>
+<td><code>vertical_richness</code></td>
+<td>Count of vertical height intervals containing at least one return.</td>
+<td>Number of occupied height bins</td>
+<td>[R2], [R3]</td>
+</tr>
+<tr>
+<td><code>vertical_effective_layers</code></td>
+<td>Effective number of occupied height layers derived from Shannon entropy.</td>
+<td>Entropy-equivalent number of height layers</td>
+<td>[R1], [R2]</td>
+</tr>
+<tr>
+<td><code>vertical_simpson</code></td>
+<td>Diversity of returns among height intervals, using a Simpson-type index.</td>
+<td>Vertical diversity; 0 for one occupied layer</td>
+<td>[R2]</td>
+</tr>
+<tr>
+<td><code>vertical_dominance</code></td>
+<td>Largest proportion of returns concentrated in one occupied height interval.</td>
+<td>Fraction in the dominant occupied height bin</td>
+<td>[R2]</td>
+</tr>
+<tr>
+<td><code>vertical_occupancy_fraction</code></td>
+<td>Proportion of height intervals occupied between the lowest and highest occupied intervals.</td>
+<td>Fraction of within-profile bins containing returns</td>
+<td>[R2]</td>
+</tr>
+<tr>
+<td><code>vertical_gap_count</code></td>
+<td>Count of <strong>internal</strong> empty-bin runs between first/last occupied bins</td>
+<td>Number of internal vertical discontinuities</td>
+<td>[R2], [R3]</td>
+</tr>
+<tr>
+<td><code>vertical_gap_fraction</code></td>
+<td>Proportion of empty intervals within the occupied vertical span.</td>
+<td>Within-profile vertical emptiness</td>
+<td>[R2]</td>
+</tr>
+<tr>
+<td><code>max_vertical_gap_m</code></td>
+<td>Height in metres of the longest internal empty interval sequence.</td>
+<td>Maximum vertical discontinuity, m</td>
+<td>[R2]</td>
+</tr>
+<tr>
+<td><code>first_return_fraction</code></td>
+<td>Fraction of vegetation points whose <code>return_number==1</code></td>
+<td>First-return share of vegetation returns</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>multi_return_fraction</code></td>
+<td>Fraction of vegetation points whose <code>return_number&gt;1</code></td>
+<td>Later-return share; <strong>not</strong> fraction of pulses producing multiple returns</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>z_skewness</code></td>
+<td>Third central moment / population SD³; 0 for zero SD</td>
+<td>Asymmetry of height distribution</td>
+<td>[R4]</td>
+</tr>
+<tr>
+<td><code>z_kurtosis</code></td>
+<td>Fourth central moment / population SD⁴ minus 3; 0 for zero SD</td>
+<td><strong>Excess</strong> kurtosis of heights</td>
+<td>[R4]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important correction to common interpretations:</strong> <code>VCI</code> in this implementation is the Shannon entropy normalized by the logarithm of <strong>occupied</strong> vertical bins, and <code>multi_return_fraction</code> is computed as the proportion of points with <code>return_number&gt;1</code>. It should not be described as the fraction of pulses that produced multiple returns. <code>canopy_cover</code> is return-based, so it should not be equated with field-measured crown projection without calibration.</p>
+<h3 id="3172-three-dimensional-point-distribution-descriptors">3.17.2 Three-dimensional point-distribution descriptors</h3>
+<p>FAST_STRUCTURE computes <strong>robust weighted covariance</strong> within eligible raster cells. It uses a coordinate median and distance-based robust weights to reduce the influence of unusually distant points. Covariance descriptors summarize the spread of points along three principal spatial directions; they do not by themselves identify biological classes.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Implementation-specific definition</th>
+<th>Interpretation</th>
+<th>Literature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>linearity</code></td>
+<td>Extent to which points follow one principal spatial direction.</td>
+<td>Line-like local 3D arrangement</td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>planarity</code></td>
+<td>Extent to which points occupy a locally planar arrangement.</td>
+<td>Planar arrangement</td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>sphericity</code></td>
+<td>Extent to which local points are distributed similarly across three spatial directions.</td>
+<td>Isotropic / volumetric spread</td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>anisotropy</code></td>
+<td>Strength of directional differences in local point geometry.</td>
+<td>Directional imbalance</td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>omnivariance</code></td>
+<td>Combined spread of the local point distribution along three principal directions.</td>
+<td>Overall covariance-volume scale; <strong>units depend on eigenvalue units</strong></td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>surface_variation</code></td>
+<td>Relative contribution of the smallest covariance eigenvalue, indicating deviation from planarity.</td>
+<td>Local departure from planarity</td>
+<td>[R8]</td>
+</tr>
+<tr>
+<td><code>eigenentropy</code></td>
+<td>Diversity of normalized covariance eigenvalues; describes geometric disorder.</td>
+<td>Distribution of normalized covariance eigenvalues</td>
+<td>[R1], [R8]</td>
+</tr>
+<tr>
+<td><code>normal_inclination_deg</code></td>
+<td>Inclination of local fitted normal from vertical, degrees</td>
+<td>Inclination of local fitted normal from vertical, degrees</td>
+<td>[R8]</td>
+</tr>
+</tbody>
+</table>
+<p>These descriptors summarize the spatial arrangement of the <em>returns in the cell</em>. They are <strong>not validated biological class probabilities</strong> for stems, branches, or leaves.</p>
+<h3 id="3173-terrain-height-surfaces-and-sampling-scientific-context">3.17.3 Terrain, height surfaces and sampling: scientific context</h3>
+<table>
+<thead>
+<tr>
+<th>Bundle</th>
+<th>Scientific foundation</th>
+<th>How to interpret Plot 005</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ground classification and DEM</td>
+<td>Distinguish terrain returns from vegetation/objects, then interpolate ground elevations</td>
+<td>Terrain interpolation affects every normalized height</td>
+<td>[R5]</td>
+</tr>
+<tr>
+<td>DSM, CHM, individual-tree detection</td>
+<td>Canopy surface and local-maxima approaches for tree heights</td>
+<td>CHM peaks are not automatically a one-to-one census of trees</td>
+<td>[R6], [R7]</td>
+</tr>
+<tr>
+<td>Terrain slope, aspect, curvature</td>
+<td>DEM derivatives and scale-sensitive terrain analysis</td>
+<td>Interpret at cell and neighborhood scales; avoid extrapolating beyond core</td>
+<td>[R9]</td>
+</tr>
+<tr>
+<td>TRI</td>
+<td>Neighbor-elevation ruggedness index</td>
+<td>High TRI indicates more local terrain heterogeneity, dependent on window definition</td>
+<td>[R10]</td>
+</tr>
+<tr>
+<td>TPI</td>
+<td>Elevation relative to surrounding neighborhood</td>
+<td>Positive and negative values indicate local highs and lows, not absolute altitude</td>
+<td>[R9]</td>
+</tr>
+<tr>
+<td>Flow direction and contributing area</td>
+<td>Grid-based drainage routing</td>
+<td>A clipped 15 m plot truncates upstream contributions; compute hydrology on a larger DEM first</td>
+<td>[R11]</td>
+</tr>
+<tr>
+<td>Foliage height distribution</td>
+<td>Vertical foliage profiles and LiDAR canopy structure</td>
+<td>FHD describes return distribution, not directly measured leaf area</td>
+<td>[R2], [R3]</td>
+</tr>
+<tr>
+<td>Plot extraction and visual inspection</td>
+<td>LiDAR sample clipping, interactive point-cloud analysis and plot statistics</td>
+<td>A buffered point-cloud sample is not identical to the inventory core</td>
+<td>[R4]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3174-datasetfigurecommand-traceability">3.17.4 Dataset–figure–command traceability</h3>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Plot 005 product</th>
+<th>Figure group</th>
+<th>Command that generates the product family</th>
+<th>Evidence status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Plot_005.laz</code>, <code>Clip_Plot_005.json</code></td>
+<td>Buffered clip, core geometry</td>
+<td>Figures 3.1–3.3</td>
+<td><code>fastgc gis --sampling random ...</code> (§3.3)</td>
+<td>Plot 005 metadata examined</td>
+</tr>
+<tr>
+<td>Classified plot LAS</td>
+<td><code>FAST_GC</code></td>
+<td>Figures 3.1–3.2</td>
+<td><code>fastgc --workflow plots-run ... --products FAST_GC</code> (§3.9)</td>
+<td>Supplied point-cloud output</td>
+</tr>
+<tr>
+<td>Normalized plot LAS</td>
+<td><code>FAST_NORMALIZED</code></td>
+<td>Figure 3.3</td>
+<td>Expanded command (§3.10.1)</td>
+<td>Supplied point-cloud output</td>
+</tr>
+<tr>
+<td>Standalone GeoTIFFs</td>
+<td>Surface elevation / canopy height</td>
+<td>Figure 3.4</td>
+<td>Expanded command (§3.10.1)</td>
+<td><strong>DSM/CHM file identities provisional</strong></td>
+</tr>
+<tr>
+<td><code>FAST_TERRAIN.zip</code></td>
+<td>Slope, aspect, hillshade, roughness, TRI, TPI</td>
+<td>Figure 3.5</td>
+<td>Expanded command (§3.10.1)</td>
+<td>Six supplied terrain rasters</td>
+</tr>
+<tr>
+<td><code>FAST_STRUCTURE.zip</code></td>
+<td>Core metrics, vertical metrics, geometry</td>
+<td>Figures 3.6–3.8</td>
+<td>Expanded command (§3.10.1)</td>
+<td>36 supplied structure rasters</td>
+</tr>
+<tr>
+<td>Other sampling techniques</td>
+<td>Random/continuous/rough-height/imported</td>
+<td>Schematic shape and sampling diagrams</td>
+<td>Commands in §§3.4–3.6</td>
+<td>Source-supported examples, not benchmarked outputs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="318-references">3.18 References</h2>
+<p>The following sources were checked against publisher, professional-society, university, or institutional records. They support scientific interpretation and historical context; <strong>they are not automatic evidence that FAST-GC uses their exact algorithms</strong>.</p>
+<ol>
+<li><strong>[R1]</strong> Shannon, C. E., and Weaver, W. (1949). <em>The Mathematical Theory of Communication</em>. University of Illinois Press. <a href="https://www.ncbi.nlm.nih.gov/nlmcatalog/101639117">Bibliographic record</a>.</li>
+<li><strong>[R2]</strong> MacArthur, R. H., and Horn, H. S. (1969). Foliage profile by vertical measurements. <em>Ecology</em>, <strong>50</strong>(5), 802–804. https://doi.org/10.2307/1933693.</li>
+<li><strong>[R3]</strong> Lefsky, M. A., Cohen, W. B., Acker, S. A., Parker, G. G., Spies, T. A., and Harding, D. (1999). Lidar remote sensing of the canopy structure and biophysical properties of Douglas-fir western hemlock forests. <em>Remote Sensing of Environment</em>, <strong>70</strong>(3), 339–361. <a href="https://www.sciencedirect.com/science/article/pii/S0034425799000528">Publisher article</a>.</li>
+<li><strong>[R4]</strong> McGaughey, R. J. <em>FUSION/LDV: LiDAR Data Analysis and Visualization Software</em>. USDA Forest Service, Pacific Northwest Research Station. <a href="https://forsys.sefs.uw.edu/FUSION/fusion_overview.html">Official software overview</a>. Software documentation; no journal publication date asserted.</li>
+<li><strong>[R5]</strong> Zhang, K., Chen, S.-C., Whitman, D., Shyu, M.-L., Yan, J., and Zhang, C. (2003). A progressive morphological filter for removing nonground measurements from airborne LIDAR data. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, <strong>41</strong>(4), 872–882. https://doi.org/10.1109/TGRS.2003.810682.</li>
+<li><strong>[R6]</strong> Popescu, S. C., Wynne, R. H., and Nelson, R. F. (2002). Estimating plot-level tree heights with lidar: local filtering with a canopy-height based variable window size. <em>Computers and Electronics in Agriculture</em>, <strong>37</strong>(1–3), 71–95. https://doi.org/10.1016/S0168-1699(02)00121-7.</li>
+<li><strong>[R7]</strong> Popescu, S. C., and Wynne, R. H. (2004). Seeing the trees in the forest: using lidar and multispectral data fusion with local filtering and variable window size for estimating tree height. <em>Photogrammetric Engineering &amp; Remote Sensing</em>, <strong>70</strong>(5), 589–604. https://doi.org/10.14358/PERS.70.5.589.</li>
+<li><strong>[R8]</strong> Weinmann, M., Jutzi, B., Hinz, S., and Mallet, C. (2015). Semantic point cloud interpretation based on optimal neighborhoods, relevant features and efficient classifiers. <em>ISPRS Journal of Photogrammetry and Remote Sensing</em>, <strong>105</strong>, 286–304. <a href="https://scholar.google.com/scholar?q=Weinmann+Jutzi+Hinz+Mallet+2015+semantic+point+cloud+interpretation">Bibliographic search</a>.</li>
+<li><strong>[R9]</strong> Wilson, J. P., and Gallant, J. C. (eds.) (2000). <em>Terrain Analysis: Principles and Applications</em>. John Wiley &amp; Sons. ISBN 9780471321880. <a href="https://www.wiley-vch.de/en/areas-interest/natural-sciences/geography-11ge/gis-remote-sensing-cartography-11ge6/terrain-analysis-978-0-471-32188-0">Publisher</a>.</li>
+<li><strong>[R10]</strong> Riley, S. J., DeGloria, S. D., and Elliot, R. (1999). A terrain ruggedness index that quantifies topographic heterogeneity. <em>Intermountain Journal of Sciences</em>, <strong>5</strong>(1–4), 23–27. <a href="https://arc.lib.montana.edu/ojs/index.php/IJS/article/view/2914">Journal record</a>.</li>
+<li><strong>[R11]</strong> Tarboton, D. G. (1997). A new method for the determination of flow directions and upslope areas in grid digital elevation models. <em>Water Resources Research</em>, <strong>33</strong>(2), 309–319. https://doi.org/10.1029/96WR03137.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

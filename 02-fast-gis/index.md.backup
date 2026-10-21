@@ -1,0 +1,31 @@
+﻿# FAST-GIS
+
+FAST-GIS provides spatial preparation operations
+for LiDAR processing workflows.
+
+## Overview
+
+Purpose and supported operations.
+
+## Spatial Subsetting
+
+Supported clipping shapes and syntax.
+
+## Sampling
+
+Supported point-cloud sampling strategies.
+
+## Data Preparation
+
+Input organization and available preparation operations.
+
+## Practical Examples
+
+Commands, input files, output files, and figures.
+
+## Integration with FAST-GC
+
+Using prepared datasets for ground classification
+and downstream products.
+
+Commands will be added after source verification.

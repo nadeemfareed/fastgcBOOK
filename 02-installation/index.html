@@ -1,0 +1,1225 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Practical FAST-GC LiDAR processing guide">
+      
+      
+      
+      
+        <link rel="prev" href="../01-introduction/">
+      
+      
+        <link rel="next" href="../02-fast-gis/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Chapter 2: Cross-Platform Installation, Configuration, and Performance - FAST-GC Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/fastgc-book.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-2-installation-configuration-and-performance-optimization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FAST-GC Book" class="md-header__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FAST-GC Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 2: Cross-Platform Installation, Configuration, and Performance
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    FAST-GC Book
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1: Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Cross-Platform Installation, Configuration, and Performance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Cross-Platform Installation, Configuration, and Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#21-installation-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Installation overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 Installation overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reference-hardware-and-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference hardware and software
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-windows-conda-pypi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Windows: Conda + PyPI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-windows-python-venv-pypi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Windows: Python venv + PyPI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-windows-github-source-editable-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Windows: GitHub source / editable installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25-ubuntu-2204-and-wsl2-uv-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Ubuntu 22.04 and WSL2: uv installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-google-colab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Google Colab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-local-jupyter-notebook-and-jupyterlab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 Local Jupyter Notebook and JupyterLab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#28-macos-installation-not-independently-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 macOS installation (not independently tested)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#29-standard-fast_gc-command-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9 Standard FAST_GC command interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#210-performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.10 Performance optimization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.10 Performance optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worker-scaling-on-the-reference-windows-workstation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worker scaling on the reference Windows workstation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tile-geometry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tile geometry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu-wsl2-execution-observation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubuntu WSL2 execution observation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-optimization-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical optimization rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#211-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.11 Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#212-reproducibility-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.12 Reproducibility checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#213-chapter-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.13 Chapter summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-fast-gis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3: FAST-GIS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-ground-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4: Ground Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-products/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 5: Products
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 6: Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 7: Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-2-installation-configuration-and-performance-optimization">Chapter 2 — Installation, Configuration, and Performance Optimization</h1>
+<p><strong>Documentation release:</strong> FAST-GC v0.2.1<br>
+<strong>Scope:</strong> installation, environment checks, and FAST_GC-only speed tests. Detailed FAST_DEM, FAST_CHM, and other product validation is reserved for their respective chapters.</p>
+<h2 id="21-installation-overview">2.1 Installation overview</h2>
+<p>FAST-GC is a Python command-line application for ground classification of airborne (ALS), UAV (ULS), and terrestrial (TLS) LiDAR data. Release <strong>0.2.1</strong> declares Python <strong>3.12–3.14</strong> compatibility. The tested installation environments used Python 3.12.15 on Windows and Ubuntu WSL2, and Python 3.13 in Google Colab. Use an isolated environment; avoid changing your operating system's Python interpreter.</p>
+<table>
+<thead>
+<tr>
+<th>Installation pathway</th>
+<th>System</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conda environment + PyPI</td>
+<td>Windows 11 Pro</td>
+<td>Installation, <code>pip check</code>, <code>fastgc-check</code>, CLI and imports passed</td>
+</tr>
+<tr>
+<td>Python <code>venv</code> + PyPI</td>
+<td>Windows 11 Pro</td>
+<td>Installation, dependencies, CLI and imports passed</td>
+</tr>
+<tr>
+<td>GitHub editable installation</td>
+<td>Windows 11 Pro</td>
+<td>Editable build, dependencies, CLI and source import passed</td>
+</tr>
+<tr>
+<td><code>uv</code> + PyPI</td>
+<td>Ubuntu 22.04.5 LTS on WSL2</td>
+<td>Installation, 23 dependency packages, checks and CLI passed</td>
+</tr>
+<tr>
+<td>PyPI in Google Colab</td>
+<td>Hosted Linux, Python 3.13</td>
+<td>Installation and an ALS run completed previously</td>
+</tr>
+<tr>
+<td>Native Ubuntu (not WSL2)</td>
+<td>—</td>
+<td>Not independently tested</td>
+</tr>
+<tr>
+<td>macOS Intel / Apple Silicon</td>
+<td>—</td>
+<td>Guidance only; not independently tested</td>
+</tr>
+</tbody>
+</table>
+<h3 id="reference-hardware-and-software">Reference hardware and software</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Tested configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Workstation</td>
+<td>Dell G16 7620</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>Intel Core i9-12900H, 14 physical cores / 20 logical processors</td>
+</tr>
+<tr>
+<td>Host RAM</td>
+<td>Approximately 31.69 GiB</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Windows 11 Pro</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>Ubuntu 22.04.5 LTS on WSL2; Linux-reported available RAM approximately 27.4 GiB during the benchmark</td>
+</tr>
+<tr>
+<td>Windows and WSL2 Python</td>
+<td>3.12.15</td>
+</tr>
+<tr>
+<td>FAST-GC</td>
+<td>0.2.1</td>
+</tr>
+<tr>
+<td>Reference point cloud</td>
+<td>Site5 ALS, approximately 3.5 million points; source Site 15 in Jin et al. (2020)</td>
+</tr>
+</tbody>
+</table>
+<p>A GPU is <strong>not required</strong> for the tested core FAST_GC workflow. RAM and disk needs depend on point count, density, tile dimensions, and concurrency; 16 GiB or more is a practical recommendation for substantial datasets, not a formal minimum.</p>
+<h2 id="22-windows-conda-pypi">2.2 Windows: Conda + PyPI</h2>
+<p>Open <strong>PowerShell</strong> with Conda available. The following block creates an isolated environment, installs the pinned release, and checks it.</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">create</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">python</span><span class="p">=</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">pip</span> <span class="n">-y</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">fastgc</span><span class="p">==</span><span class="n">0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">check</span>
+<span class="n">fastgc-check</span>
+<span class="n">fastgc</span> <span class="p">-</span><span class="n">-version</span>
+<span class="n">fastgc</span> <span class="p">-</span><span class="n">-help</span>
+</code></pre></div>
+<p>Expected version: <code>fastgc 0.2.1</code>. If the installation command succeeds but <code>fastgc</code> is not recognized, check that the correct environment is active with <code>conda info --envs</code> and <code>Get-Command fastgc</code>.</p>
+<p><strong>One-paste PowerShell installation</strong> (no activation required):</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">create</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">python</span><span class="p">=</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">pip</span> <span class="n">-y</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Conda environment failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">fastgc</span><span class="p">==</span><span class="n">0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'FAST-GC installation failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">check</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Dependency check failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">fastgc-check</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'FAST-GC check failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc</span> <span class="n">fastgc</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+<h2 id="23-windows-python-venv-pypi">2.3 Windows: Python <code>venv</code> + PyPI</h2>
+<p>This method requires an installed Python 3.12 interpreter accessible through the Windows Python launcher.</p>
+<div class="highlight"><pre><span></span><code><span class="n">py</span> <span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="p">-</span><span class="n">-version</span>
+<span class="n">py</span> <span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">-m</span> <span class="n">venv</span> <span class="s2">"$HOME\fastgc_venv"</span>
+<span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\python.exe"</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">fastgc</span><span class="p">==</span><span class="n">0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span>
+<span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\python.exe"</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">check</span>
+<span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\fastgc-check.exe"</span>
+<span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\fastgc.exe"</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+<p>Using the environment executables directly avoids PowerShell execution-policy issues. To activate interactively when permitted:</p>
+<div class="highlight"><pre><span></span><code><span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\Activate.ps1"</span>
+</code></pre></div>
+<p><strong>One-paste PowerShell installation:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">py</span> <span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">-m</span> <span class="n">venv</span> <span class="s2">"$HOME\fastgc_venv"</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'venv creation failed'</span> <span class="p">};</span> <span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\python.exe"</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">fastgc</span><span class="p">==</span><span class="n">0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Install failed'</span> <span class="p">};</span> <span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\python.exe"</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">check</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Dependency check failed'</span> <span class="p">};</span> <span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\fastgc-check.exe"</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Diagnostic failed'</span> <span class="p">};</span> <span class="p">&amp;</span> <span class="s2">"$HOME\fastgc_venv\Scripts\fastgc.exe"</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+<h2 id="24-windows-github-source-editable-installation">2.4 Windows: GitHub source / editable installation</h2>
+<p>Use editable installation if you plan to inspect or modify FAST-GC source code. The pinned release tag provides a more reproducible baseline than an unspecified development branch.</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">create</span> <span class="n">-n</span> <span class="n">fastgc_source</span> <span class="n">python</span><span class="p">=</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">pip</span> <span class="n">-y</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc_source</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">://</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">nadeemfareed</span><span class="p">/</span><span class="n">FAST-GC</span><span class="p">.</span><span class="n">git</span>
+<span class="nb">cd </span><span class="n">FAST-GC</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">v0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-e</span> <span class="p">.</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">check</span>
+<span class="n">fastgc-check</span>
+<span class="n">fastgc</span> <span class="p">-</span><span class="n">-version</span>
+<span class="n">python</span> <span class="n">-c</span> <span class="s2">"import fastgc; print(fastgc.__file__)"</span>
+<span class="n">git</span> <span class="n">rev-parse</span> <span class="n">HEAD</span>
+</code></pre></div>
+<p>The Windows editable-installation test succeeded against the repository default branch reporting version 0.2.1; the exact tested commit was not independently recorded. The explicit <code>git checkout v0.2.1</code> above is a reproducibility recommendation, not a claim that the test used that tag.</p>
+<p><strong>One-paste PowerShell source installation:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">create</span> <span class="n">-n</span> <span class="n">fastgc_source</span> <span class="n">python</span><span class="p">=</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">pip</span> <span class="n">-y</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Conda failed'</span> <span class="p">};</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">://</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">nadeemfareed</span><span class="p">/</span><span class="n">FAST-GC</span><span class="p">.</span><span class="n">git</span> <span class="s2">"$HOME\FAST-GC"</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Clone failed; check whether target already exists'</span> <span class="p">};</span> <span class="n">git</span> <span class="n">-C</span> <span class="s2">"$HOME\FAST-GC"</span> <span class="n">checkout</span> <span class="n">v0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">1</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Checkout failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc_source</span> <span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-e</span> <span class="s2">"$HOME\FAST-GC"</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Install failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc_source</span> <span class="n">fastgc-check</span><span class="p">;</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$LASTEXITCODE</span> <span class="o">-ne</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="s1">'Diagnostic failed'</span> <span class="p">};</span> <span class="n">conda</span> <span class="n">run</span> <span class="n">-n</span> <span class="n">fastgc_source</span> <span class="n">fastgc</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+<p>The one-paste command assumes <code>$HOME\FAST-GC</code> does not already exist.</p>
+<h2 id="25-ubuntu-2204-and-wsl2-uv-installation">2.5 Ubuntu 22.04 and WSL2: <code>uv</code> installation</h2>
+<p>Ubuntu 22.04's system Python 3.10 is below FAST-GC v0.2.1's minimum. Do <strong>not</strong> replace system Python. Install Python 3.12 into an isolated <code>uv</code> environment instead.</p>
+<p>From <strong>Windows PowerShell</strong>, enter Ubuntu:</p>
+<div class="highlight"><pre><span></span><code><span class="n">wsl</span> <span class="n">-d</span> <span class="n">Ubuntu</span><span class="p">-</span><span class="n">22</span><span class="p">.</span><span class="n">04</span>
+</code></pre></div>
+<p>Then in the <strong>Ubuntu shell</strong>:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+uv<span class="w"> </span>python<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.12
+uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env"</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--python<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/python"</span><span class="w"> </span><span class="nv">fastgc</span><span class="o">==</span><span class="m">0</span>.2.1
+uv<span class="w"> </span>pip<span class="w"> </span>check<span class="w"> </span>--python<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/python"</span>
+<span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/fastgc-check"</span>
+<span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/fastgc"</span><span class="w"> </span>--version
+</code></pre></div>
+<p><strong>One-paste installation directly from Windows PowerShell</strong> (requires WSL2 and <code>Ubuntu-22.04</code> already installed):</p>
+<div class="highlight"><pre><span></span><code><span class="n">wsl</span> <span class="n">-d</span> <span class="n">Ubuntu</span><span class="p">-</span><span class="n">22</span><span class="p">.</span><span class="n">04</span> <span class="p">--</span> <span class="n">bash</span> <span class="n">-lc</span> <span class="s1">'set -e; export PATH="$HOME/.local/bin:$PATH"; if ! command -v uv &gt;/dev/null 2&gt;&amp;1; then curl -LsSf https://astral.sh/uv/install.sh | sh; fi; uv python install 3.12; uv venv --python 3.12 "$HOME/fastgc_env"; uv pip install --python "$HOME/fastgc_env/bin/python" fastgc==0.2.1; uv pip check --python "$HOME/fastgc_env/bin/python"; "$HOME/fastgc_env/bin/fastgc-check"; "$HOME/fastgc_env/bin/fastgc" --version'</span>
+</code></pre></div>
+<p>Windows paths such as <code>C:\data\Site5.las</code> are accessed from WSL2 as <code>/mnt/c/data/Site5.las</code>. For tiled workloads, using Linux-native output storage under <code>$HOME</code> is a practical starting point; the speed impact of storage location was not isolated in these tests.</p>
+<h2 id="26-google-colab">2.6 Google Colab</h2>
+<p>Run the following in <strong>Colab notebook cells</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">fastgc</span><span class="o">==</span><span class="mf">0.2.1</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">importlib.metadata</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">'fastgc'</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">fastgc</span><span class="o">-</span><span class="n">check</span>
+<span class="err">!</span><span class="n">fastgc</span> <span class="o">--</span><span class="n">version</span>
+<span class="err">!</span><span class="n">fastgc</span> <span class="o">--</span><span class="n">help</span>
+</code></pre></div>
+<p>For input stored in Google Drive:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">google.colab</span><span class="w"> </span><span class="kn">import</span> <span class="n">drive</span>
+<span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">'/content/drive'</span><span class="p">)</span>
+</code></pre></div>
+<p>A FAST_GC-only example, assuming the file exists:</p>
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">fastgc</span> <span class="o">--</span><span class="n">in_path</span> <span class="s1">'/content/drive/MyDrive/Site5.las'</span> <span class="o">--</span><span class="n">out_dir</span> <span class="s1">'/content/FASTGC_OUTPUT'</span> <span class="o">--</span><span class="n">sensor_mode</span> <span class="n">ALS</span> <span class="o">--</span><span class="n">workflow</span> <span class="n">run</span> <span class="o">--</span><span class="n">products</span> <span class="n">FAST_GC</span>
+</code></pre></div>
+<p>Colab CPU and memory allocations vary. <code>/content</code> is temporary; copy results to persistent storage before the runtime ends. A GPU runtime is not required for the tested FAST_GC workflow.</p>
+<h2 id="27-local-jupyter-notebook-and-jupyterlab">2.7 Local Jupyter Notebook and JupyterLab</h2>
+<p>Install Jupyter in the <strong>same environment</strong> as FAST-GC, then register the kernel:</p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">jupyterlab</span> <span class="n">ipykernel</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">ipykernel</span> <span class="n">install</span> <span class="p">-</span><span class="n">-user</span> <span class="p">-</span><span class="n">-name</span> <span class="n">fastgc</span> <span class="p">-</span><span class="n">-display-name</span> <span class="s1">'Python (FAST-GC)'</span>
+<span class="n">jupyter</span> <span class="n">lab</span>
+</code></pre></div>
+<p>Select <strong>Python (FAST-GC)</strong> as the notebook kernel. In an existing notebook, <code>%pip install fastgc==0.2.1</code> targets the current kernel. Restart the kernel after installation if necessary.</p>
+<p>Verify the active interpreter:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">importlib.metadata</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Kernel Python:'</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'FAST-GC:'</span><span class="p">,</span> <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">'fastgc'</span><span class="p">))</span>
+</code></pre></div>
+<p>For robust multiprocessing, execute the FAST-GC CLI as a subprocess instead of embedding worker creation directly in notebook code:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">exe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="s1">'fastgc.exe'</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">'nt'</span> <span class="k">else</span> <span class="s1">'fastgc'</span><span class="p">)</span>
+<span class="n">input_file</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'C:\path\to\Site5.las'</span>   <span class="c1"># change to your real path</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'C:\path\to\FASTGC_NOTEBOOK_TEST'</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">exe</span><span class="p">),</span> <span class="s1">'--in_path'</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="s1">'--out_dir'</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
+       <span class="s1">'--sensor_mode'</span><span class="p">,</span> <span class="s1">'ALS'</span><span class="p">,</span> <span class="s1">'--workflow'</span><span class="p">,</span> <span class="s1">'tile-run-merge'</span><span class="p">,</span>
+       <span class="s1">'--products'</span><span class="p">,</span> <span class="s1">'FAST_GC'</span><span class="p">,</span> <span class="s1">'--tile_size_m'</span><span class="p">,</span> <span class="s1">'140'</span><span class="p">,</span>
+       <span class="s1">'--buffer_m'</span><span class="p">,</span> <span class="s1">'4'</span><span class="p">,</span> <span class="s1">'--jobs'</span><span class="p">,</span> <span class="s1">'8'</span><span class="p">,</span> <span class="s1">'--joblib_backend'</span><span class="p">,</span> <span class="s1">'loky'</span><span class="p">,</span>
+       <span class="s1">'--joblib_pre_dispatch'</span><span class="p">,</span> <span class="s1">'2*n_jobs'</span><span class="p">,</span> <span class="s1">'--cleanup_tiles'</span><span class="p">]</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'OMP_NUM_THREADS'</span><span class="p">,</span> <span class="s1">'OPENBLAS_NUM_THREADS'</span><span class="p">,</span> <span class="s1">'MKL_NUM_THREADS'</span><span class="p">,</span> <span class="s1">'NUMEXPR_NUM_THREADS'</span><span class="p">):</span>
+    <span class="n">env</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1'</span>
+<span class="n">env</span><span class="p">[</span><span class="s1">'LAZRS_NUM_THREADS'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'2'</span>
+<span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Elapsed: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">)</span>
+</code></pre></div>
+<p>For Linux notebook kernels, replace the Windows paths with Linux paths.</p>
+<h2 id="28-macos-installation-not-independently-tested">2.8 macOS installation (not independently tested)</h2>
+<p>With Python 3.12 installed:</p>
+<div class="highlight"><pre><span></span><code>python3.12<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env"</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/activate"</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">fastgc</span><span class="o">==</span><span class="m">0</span>.2.1
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>check
+fastgc-check
+fastgc<span class="w"> </span>--version
+</code></pre></div>
+<p>Availability of compatible binary distributions may differ between Intel and Apple Silicon. If source compilation is required, inspect the specific build error before installing compilers or Rust tooling. This chapter does <strong>not</strong> claim verified macOS compatibility.</p>
+<h2 id="29-standard-fast_gc-command-interface">2.9 Standard FAST_GC command interface</h2>
+<p>The same CLI argument names apply across Windows and Linux. PowerShell is the standard presentation style in this book; Linux equivalents use Bash syntax.</p>
+<p><strong>Minimal PowerShell test</strong> (replace paths):</p>
+<div class="highlight"><pre><span></span><code><span class="n">fastgc</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-in_path</span> <span class="s1">'C:\path\to\small_als_sample.las'</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-out_dir</span> <span class="s1">'C:\path\to\FASTGC_SMOKE_OUTPUT'</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-workflow</span> <span class="n">run</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span>
+</code></pre></div>
+<p>A small sample checks functional execution, not optimal performance. The sample path is illustrative, not a bundled test asset.</p>
+<p><strong>Tested Windows speed configuration:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">conda</span> <span class="n">activate</span> <span class="n">fastgc</span>
+<span class="nv">$env:OMP_NUM_THREADS</span> <span class="p">=</span> <span class="s1">'1'</span>
+<span class="nv">$env:OPENBLAS_NUM_THREADS</span> <span class="p">=</span> <span class="s1">'1'</span>
+<span class="nv">$env:MKL_NUM_THREADS</span> <span class="p">=</span> <span class="s1">'1'</span>
+<span class="nv">$env:NUMEXPR_NUM_THREADS</span> <span class="p">=</span> <span class="s1">'1'</span>
+<span class="nv">$env:LAZRS_NUM_THREADS</span> <span class="p">=</span> <span class="s1">'2'</span>
+<span class="nv">$IN</span> <span class="p">=</span> <span class="s1">'C:\path\to\Site5.las'</span>
+<span class="nv">$OUT</span> <span class="p">=</span> <span class="s1">'C:\path\to\FASTGC_SPEED_TEST'</span>
+<span class="nb">Measure-Command</span> <span class="p">{</span>
+    <span class="n">fastgc</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-in_path</span> <span class="nv">$IN</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-out_dir</span> <span class="nv">$OUT</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-sensor_mode</span> <span class="n">ALS</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-workflow</span> <span class="n">tile-run-merge</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-products</span> <span class="n">FAST_GC</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-tile_size_m</span> <span class="n">140</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-buffer_m</span> <span class="n">4</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-jobs</span> <span class="n">8</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-joblib_backend</span> <span class="n">loky</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-joblib_pre_dispatch</span> <span class="s1">'2*n_jobs'</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-cleanup_tiles</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Equivalent Ubuntu FAST_GC-only test:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/fastgc_env/bin/activate"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">OPENBLAS_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">MKL_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">NUMEXPR_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">LAZRS_NUM_THREADS</span><span class="o">=</span><span class="m">2</span>
+<span class="nb">time</span><span class="w"> </span>fastgc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--in_path<span class="w"> </span><span class="s1">'/path/to/Site5.las'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out_dir<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/FASTGC_SPEED_TEST"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sensor_mode<span class="w"> </span>ALS<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--workflow<span class="w"> </span>tile-run-merge<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--products<span class="w"> </span>FAST_GC<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tile_size_m<span class="w"> </span><span class="m">140</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--buffer_m<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jobs<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--joblib_backend<span class="w"> </span>loky<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--joblib_pre_dispatch<span class="w"> </span><span class="s1">'2*n_jobs'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cleanup_tiles
+</code></pre></div>
+<p>For reproducible timing, use a <strong>fresh output directory</strong>. The correct FAST-GC v0.2.1 tile buffer flag is <code>--buffer_m</code>, <strong>not</strong> <code>--tile_buffer_m</code>. The available workflows and flags should always be checked using <code>fastgc --help</code> for the installed release.</p>
+<h2 id="210-performance-optimization">2.10 Performance optimization</h2>
+<h3 id="worker-scaling-on-the-reference-windows-workstation">Worker scaling on the reference Windows workstation</h3>
+<p>Site5 ALS, FAST_GC-only, 140 m tiles, 4 m buffer, <code>tile-run-merge</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Workers</th>
+<th style="text-align: right;">Wall time (s)</th>
+<th style="text-align: right;">Speedup versus 1 worker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2085.38</td>
+<td style="text-align: right;">1.00×</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1185.86</td>
+<td style="text-align: right;">1.76×</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">755.59</td>
+<td style="text-align: right;">2.76×</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">633.45</td>
+<td style="text-align: right;">3.29×</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>8</strong></td>
+<td style="text-align: right;"><strong>600.87</strong></td>
+<td style="text-align: right;"><strong>3.47×</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">Approximately 903</td>
+<td style="text-align: right;">Approximately 2.31×</td>
+</tr>
+</tbody>
+</table>
+<p>Eight workers were fastest <strong>among the tested configurations on this workstation</strong>. Ten workers performed worse, illustrating scheduling, memory, or I/O contention beyond the practical optimum. Individual runs were measured; confidence intervals and repeat-run statistics were not established.</p>
+<h3 id="tile-geometry">Tile geometry</h3>
+<table>
+<thead>
+<tr>
+<th>Tile size</th>
+<th>Buffer</th>
+<th style="text-align: right;">Workers</th>
+<th style="text-align: right;">Tiles</th>
+<th style="text-align: right;">Runtime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>140 m</td>
+<td>4 m</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">600.87 s</td>
+</tr>
+<tr>
+<td>50 m</td>
+<td>3 m</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">830.39 s</td>
+</tr>
+</tbody>
+</table>
+<p>The 50 m configuration was approximately 38.2% slower. Buffer width also changed, so this is <strong>not</strong> a controlled tile-size-only experiment. Smaller tiles can reduce per-task memory while increasing scheduling and intermediate-file overhead; larger tiles do the reverse.</p>
+<h3 id="ubuntu-wsl2-execution-observation">Ubuntu WSL2 execution observation</h3>
+<p>A completed WSL2 Site5 run used 140 m tiles, 4 m buffer, eight <code>loky</code> workers, and requested <strong>FAST_GC, FAST_DEM, and FAST_CHM</strong>. It completed 16/16 tiles without reported failures, with FAST_GC classification taking approximately <strong>5 min 04 s</strong> and full shell wall time <strong>338.395 s (5 min 38 s)</strong>. The merged FAST_GC point count was <strong>3,503,054</strong>. The application's internal FAST-GC total was <strong>312.72 s</strong>.</p>
+<p>The earlier Windows FAST_GC-only run took <strong>600.87 s</strong>, so the observed Linux wall time was <strong>1.78× shorter in ratio terms</strong> (43.7% less elapsed time). This is <strong>preliminary cross-platform evidence</strong>, not a controlled OS-only speed comparison: requested products, runtime conditions, and filesystem behavior differed. A repeated FAST_GC-only run on both platforms is needed to attribute the difference to the operating system.</p>
+<h3 id="practical-optimization-rules">Practical optimization rules</h3>
+<ul>
+<li>Start with a worker count appropriate for CPU cores and available RAM; do not assume more workers are always faster.</li>
+<li>Use process-level parallelism (<code>--joblib_backend loky</code>) for the documented benchmark configuration.</li>
+<li>Limit common numerical-library thread pools to avoid oversubscription when running multiple workers.</li>
+<li>Use <code>--joblib_pre_dispatch '2*n_jobs'</code> as the tested dispatch setting; it controls queued tasks, not the number of worker processes.</li>
+<li>Choose tile size and buffer based on dataset geometry and memory requirements; avoid shrinking buffers solely to improve runtime.</li>
+<li>Prefer fast local storage for intermediate tiles; under WSL2, Linux-native output directories are a reasonable starting point.</li>
+<li>Keep sensor mode consistent with acquisition type: ALS, ULS, or TLS. A faster mode is not automatically a scientifically appropriate mode.</li>
+<li>Record wall time, input point count, tile count, worker count, environment, and failure count.</li>
+</ul>
+<h2 id="211-troubleshooting">2.11 Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely explanation</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>No matching distribution found</code></td>
+<td>Unsupported Python or unavailable compatible build</td>
+<td>Check <code>python --version</code>; use isolated Python 3.12</td>
+</tr>
+<tr>
+<td><code>fastgc</code> not recognized</td>
+<td>Wrong environment or PATH</td>
+<td>Activate environment or invoke its <code>fastgc</code> executable directly</td>
+</tr>
+<tr>
+<td>PowerShell blocks <code>Activate.ps1</code></td>
+<td>Script execution policy</td>
+<td>Call the venv's executables directly; no policy change required</td>
+</tr>
+<tr>
+<td>Ubuntu Python 3.10</td>
+<td>System interpreter below supported version</td>
+<td>Use <code>uv python install 3.12</code> and an isolated <code>uv venv</code></td>
+</tr>
+<tr>
+<td><code>No module named pip</code> inside <code>uv</code> venv</td>
+<td>pip may not be installed in uv environment</td>
+<td>Use <code>uv pip install --python ...</code></td>
+</tr>
+<tr>
+<td><code>unrecognized arguments: --tile_buffer_m 4</code></td>
+<td>Invalid flag in v0.2.1</td>
+<td>Use <code>--buffer_m 4</code></td>
+</tr>
+<tr>
+<td><code>fastgc-check</code> reports missing dependency</td>
+<td>Incomplete or conflicting installation</td>
+<td>Run <code>pip check</code>; retry in clean environment</td>
+</tr>
+<tr>
+<td>Source build fails</td>
+<td>Missing compatible wheel or native toolchain</td>
+<td>Inspect compiler/build error; install only necessary build tools</td>
+</tr>
+<tr>
+<td>Out-of-memory / worker failures</td>
+<td>Too many jobs or oversized tiles</td>
+<td>Reduce <code>--jobs</code> and/or tile size</td>
+</tr>
+<tr>
+<td>Poor scaling at high <code>--jobs</code></td>
+<td>Scheduling, I/O or thread contention</td>
+<td>Benchmark fewer workers with fixed input/settings</td>
+</tr>
+<tr>
+<td>Jupyter kernel cannot import FAST-GC</td>
+<td>Notebook kernel points to another Python</td>
+<td>Register/select correct <code>ipykernel</code>; inspect <code>sys.executable</code></td>
+</tr>
+<tr>
+<td>Jupyter multiprocessing hangs</td>
+<td>Worker process interaction with notebook kernel</td>
+<td>Run CLI via <code>subprocess.run(...)</code></td>
+</tr>
+<tr>
+<td>Colab runtime disconnects</td>
+<td>Session lifetime or memory limits</td>
+<td>Reduce workload and save outputs to persistent storage</td>
+</tr>
+<tr>
+<td>WSL2 cannot find <code>C:\...</code> path</td>
+<td>Windows path used in Linux</td>
+<td>Convert to <code>/mnt/c/...</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important:</strong> A passing <code>fastgc-check</code> verifies environment readiness, not classification accuracy. A completed CLI test verifies execution, not the scientific validity of every downstream product.</p>
+<h2 id="212-reproducibility-checklist">2.12 Reproducibility checklist</h2>
+<p>For each published installation or performance result, record:</p>
+<ol>
+<li>FAST-GC version, package source, and Git commit where relevant.</li>
+<li>Python version, environment manager, and installed dependency builds.</li>
+<li>Operating system, architecture, CPU, logical cores, and available RAM.</li>
+<li>Sensor mode, input LAS/LAZ file, point count, and storage location.</li>
+<li>Workflow, requested products, tile size, buffer, and worker count.</li>
+<li>Joblib backend, dispatch settings, and thread environment variables.</li>
+<li>Tiling/classification/merging durations and total wall time.</li>
+<li>Successful, skipped, and failed tiles; final output point count.</li>
+<li>Whether the benchmark was repeated, and which conditions were matched.</li>
+</ol>
+<h2 id="213-chapter-summary">2.13 Chapter summary</h2>
+<p>FAST-GC v0.2.1 was successfully installed and initialized using Windows Conda, Windows Python <code>venv</code>, Windows GitHub editable installation, Ubuntu WSL2 with <code>uv</code>, and Google Colab. Python 3.12 and isolated environments provide a reproducible starting point. PowerShell is the standard interface for Windows readers, while Bash and notebook equivalents preserve the same CLI configuration.</p>
+<p>The reference Windows Site5 FAST_GC benchmark reached its fastest observed runtime with <strong>eight workers, 140 m tiles, and a 4 m buffer</strong>. The completed Ubuntu WSL2 execution demonstrated a substantially shorter observed wall time, but a controlled FAST_GC-only cross-platform comparison remains necessary. Readers should benchmark their own hardware, avoid thread oversubscription, and preserve consistent workflow parameters.</p>
+<p><strong>Further reading:</strong> <a href="https://github.com/nadeemfareed/FAST-GC">FAST-GC source repository</a>, <a href="https://pypi.org/project/fastgc/">FAST-GC on PyPI</a>, and the <a href="https://doi.org/10.20944/preprints202609.1631.v1">FAST-GC preprint</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
