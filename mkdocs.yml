@@ -1,31 +1,31 @@
-﻿site_name: FAST-GC Book
+site_name: FAST-GC Book
 site_description: Practical FAST-GC LiDAR processing guide
 docs_dir: docs
-
 theme:
   name: material
   features:
-    - navigation.sections
-    - navigation.indexes
-    - navigation.top
-    - search.highlight
-    - content.code.copy
-
+  - toc.integrate
+  - navigation.sections
+  - navigation.indexes
+  - navigation.top
+  - search.highlight
+  - content.code.copy
 plugins:
-  - search
-  - glightbox
-
+- search
+- glightbox
 markdown_extensions:
-  - admonition
-  - tables
-  - attr_list
-  - pymdownx.superfences
-
+- admonition
+- tables
+- attr_list
+- pymdownx.superfences
 nav:
-  - Home: index.md
-  - Introduction: 01-introduction/index.md
-  - FAST-GIS: 02-fast-gis/index.md
-  - Ground Classification: 03-ground-classification/index.md
-  - Products: 04-products/index.md
-  - Examples: 05-case-studies/index.md
-  - Command Reference: 06-reference/index.md
+- Home: index.md
+- 'Chapter 1: Introduction': 01-introduction/index.md
+- 'Chapter 2: Cross-Platform Installation, Configuration, and Performance': 02-installation/index.md
+- 'Chapter 3: FAST-GIS': 02-fast-gis/index.md
+- 'Chapter 4: Ground Classification': 03-ground-classification/index.md
+- 'Chapter 5: Products': 04-products/index.md
+- 'Chapter 6: Examples': 05-case-studies/index.md
+- 'Chapter 7: Command Reference': 06-reference/index.md
+extra_css:
+- stylesheets/fastgc-book.css
