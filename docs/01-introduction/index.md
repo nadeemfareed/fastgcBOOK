@@ -2,7 +2,7 @@
 
 # The Rationale of Parameter-Free Ground Classification of ALS, ULS, and TLS Point Clouds
 
-FAST-GC (**Fully Adaptive Self-Tuning Ground Classification**) provides an automated framework for separating ground and non-ground LiDAR returns and reconstructing terrain surfaces from airborne laser scanning (ALS), UAV laser scanning (ULS), and terrestrial laser scanning (TLS) observations. The algorithm adapts terrain-support estimation internally to the acquisition geometry, sampling characteristics, and local terrain conditions, thereby reducing dependence on scene-specific parameter calibration. This chapter presents the principal classification and terrain-reconstruction evidence, followed by a concise operational introduction.
+FAST-GC (**Fully Adaptive Self-Tuning Ground Classification**) is a parameter-free algorithm for classifying LiDAR ground points from non-ground points in fully automated way and reconstructing terrain surfaces from airborne laser scanning (ALS), UAV laser scanning (ULS), and terrestrial laser scanning (TLS) observations. The algorithm adapts terrain-support estimation internally to the acquisition geometry, sampling characteristics, and local terrain conditions, thereby reducing dependence on scene-specific parameter calibration. This chapter presents the principal classification and terrain-reconstruction evidence, followed by a concise operational introduction.
 
 ## 1.1 Why ground classification matters
 
