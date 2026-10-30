@@ -524,10 +524,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#213-chapter-summary" class="md-nav__link">
+  <a href="#213-stage-wise-ablation-and-algorithm-stability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.13 Chapter summary
+        2.13 Stage-wise ablation and algorithm stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#214-chapter-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.14 Chapter summary
       
     </span>
   </a>
@@ -903,10 +914,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#213-chapter-summary" class="md-nav__link">
+  <a href="#213-stage-wise-ablation-and-algorithm-stability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.13 Chapter summary
+        2.13 Stage-wise ablation and algorithm stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#214-chapter-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.14 Chapter summary
       
     </span>
   </a>
@@ -1400,7 +1422,14 @@ fastgc<span class="w"> </span>--version
 <li>Successful, skipped, and failed tiles; final output point count.</li>
 <li>Whether the benchmark was repeated, and which conditions were matched.</li>
 </ol>
-<h2 id="213-chapter-summary">2.13 Chapter summary</h2>
+<h2 id="213-stage-wise-ablation-and-algorithm-stability">2.13 Stage-wise ablation and algorithm stability</h2>
+<p>The hierarchical FAST-GC pipeline was assessed through successive classification checkpoints, using <strong>Site 5 (complex vegetation)</strong> and <strong>Site 15 (complex topography)</strong> as contrasting stress tests. At each checkpoint, the cumulative classification was compared with reference ground labels to calculate precision, recall, F1-score, and intersection over union (IoU). Site 15 recall was also stratified by reference terrain slope. The following plots show ALS results; corresponding ULS evaluation is documented in the manuscript supplement.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../assets/manuscript-figures/Figure.13.png" data-desc-position="bottom"><img alt="Stage-wise ALS performance and slope-stratified ground recall" src="../assets/manuscript-figures/Figure.13.png"></a></p>
+<p><em>Figure 2.1 (manuscript Figure 13). Cumulative ALS classification performance across processing stages. (a) Precision, recall, F1-score, and IoU for Site 15 (solid red) and Site 5 (dashed green). (b) Site 15 ground recall stratified by reference terrain slope, from 0–10° through 45–90°. Stage checkpoints show the combined result of all preceding operations.</em></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../assets/manuscript-figures/Figure.14.png" data-desc-position="bottom"><img alt="Site 15 spatial audit of ground classification checkpoints" src="../assets/manuscript-figures/Figure.14.png"></a></p>
+<p><em>Figure 2.2 (manuscript Figure 14). Spatial progression of ALS ground classification at the complex-topography Site 15. Panels show a terrain reference and successive checkpoint maps. Green denotes correctly recovered ground (TP), blue newly recovered ground (ΔTP), red omitted reference ground (FN), and yellow false ground (FP); displayed precision, recall, and IoU are checkpoint-specific.</em></p>
+<p>These figures demonstrate why stage order matters. Later stages receive the classification state produced by earlier stages; changes at a checkpoint can affect the inputs to all subsequent operations. <strong>Cumulative stage-wise curves are not equivalent to controlled leave-one-stage-out ablation:</strong> a causal removal test disables a component and reruns the remaining pipeline before comparing final outputs. The cumulative plots establish where performance changes occur; controlled removals are required to isolate each component's net contribution. No unmeasured removal effect is inferred from these plots.</p>
+<h2 id="214-chapter-summary">2.14 Chapter summary</h2>
 <p>FAST-GC v0.2.1 was successfully installed and initialized using Windows Conda, Windows Python <code>venv</code>, Windows GitHub editable installation, Ubuntu WSL2 with <code>uv</code>, and Google Colab. Python 3.12 and isolated environments provide a reproducible starting point. PowerShell is the standard interface for Windows readers, while Bash and notebook equivalents preserve the same CLI configuration.</p>
 <p>The reference Windows Site5 FAST_GC benchmark reached its fastest observed runtime with <strong>eight workers, 140 m tiles, and a 4 m buffer</strong>. The completed Ubuntu WSL2 execution demonstrated a substantially shorter observed wall time, but a controlled FAST_GC-only cross-platform comparison remains necessary. Readers should benchmark their own hardware, avoid thread oversubscription, and preserve consistent workflow parameters.</p>
 <p><strong>Further reading:</strong> <a href="https://github.com/nadeemfareed/FAST-GC">FAST-GC source repository</a>, <a href="https://pypi.org/project/fastgc/">FAST-GC on PyPI</a>, and the <a href="https://doi.org/10.20944/preprints202609.1631.v1">FAST-GC preprint</a>.</p>
