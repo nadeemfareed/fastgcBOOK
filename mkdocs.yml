@@ -4,12 +4,17 @@ docs_dir: docs
 theme:
   name: material
   features:
-  - toc.integrate
   - navigation.sections
   - navigation.indexes
   - navigation.top
   - search.highlight
   - content.code.copy
+  - navigation.instant
+  - navigation.instant.progress
+  - navigation.path
+  - navigation.footer
+  - toc.follow
+  - search.suggest
 plugins:
 - search
 - glightbox
@@ -29,3 +34,6 @@ nav:
 - 'Chapter 7: Command Reference': 06-reference/index.md
 extra_css:
 - stylesheets/fastgc-book.css
+site_url: https://nadeemfareed.github.io/fastgcBOOK/
+extra_javascript:
+- javascripts/fastgc-navigation.js
