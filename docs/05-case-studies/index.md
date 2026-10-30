@@ -16,7 +16,7 @@ This chapter presents selected figures from the FAST-GC *Sensors* peer-review ma
 
 ## 6.3 Cross-platform terrain consistency
 
-See [Chapter 1, Section 1.4](../01-introduction/#14-cross-platform-consistency-als-uls-and-tls) for the interpretation of the two following figures.
+See [Chapter 1, Section 1.4](../01-introduction/index.md#14-cross-platform-consistency-als-uls-and-tls) for the interpretation of the two following figures.
 
 ![Pairwise DEM scatterplots and residuals](../assets/manuscript-figures/Figure.10.png)
 
@@ -32,7 +32,7 @@ See [Chapter 1, Section 1.4](../01-introduction/#14-cross-platform-consistency-a
 
 ## 6.4 Hierarchical stage-wise classification assessment
 
-See [Chapter 2, Section 2.13](../02-installation/#213-stage-wise-ablation-and-algorithm-stability) for the interpretation of cumulative checkpoints versus controlled ablation.
+See [Chapter 2, Section 2.13](../02-installation/index.md#213-stage-wise-ablation-and-algorithm-stability) for the interpretation of cumulative checkpoints versus controlled ablation.
 
 ![ALS stage-wise metrics](../assets/manuscript-figures/Figure.13.png)
 
@@ -53,4 +53,3 @@ See [Chapter 2, Section 2.13](../02-installation/#213-stage-wise-ablation-and-al
 ![Landscape-scale DEM and CHM](../assets/manuscript-figures/Figure.16.png)
 
 *Manuscript Figure 16. Landscape-scale 0.5 m DEM (upper) and CHM (lower), with representative terrain and canopy details A–G. The enlarged regions illustrate spatial variation in relief and vegetation and allow visual inspection of continuity across the processed landscape.*
-
