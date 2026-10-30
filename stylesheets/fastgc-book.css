@@ -22,3 +22,34 @@
 .fastgc-section-nav .fastgc-next { margin-left: auto; }
 @media (max-width: 76.24em) { .md-typeset { font-size: .88rem; } .md-content__inner { padding-top: 1rem; } }
 @media (max-width: 40em) { .md-typeset h1 { font-size: 1.65rem; } .fastgc-section-nav .fastgc-next { margin-left: 0; } }
+
+/* FAST-GC responsive reading and sidebar v2 */
+.md-typeset { font-size: clamp(.88rem, .84rem + .12vw, .96rem); line-height: 1.65; }
+.md-typeset h1 { font-size: clamp(1.42rem, 1.1rem + 1.05vw, 1.95rem); line-height: 1.28; letter-spacing: -.012em; overflow-wrap: anywhere; }
+.md-typeset h2 { font-size: clamp(1.12rem, 1rem + .52vw, 1.38rem); line-height: 1.32; }
+.md-typeset h3 { font-size: clamp(1rem, .93rem + .26vw, 1.16rem); line-height: 1.38; }
+.md-typeset h4 { font-size: 1rem; }
+.md-typeset p, .md-typeset ul, .md-typeset ol { max-width: 80ch; }
+.md-typeset pre, .md-typeset .highlight, .md-typeset table { max-width: 100%; }
+.md-typeset img, .md-typeset svg, .md-typeset video { max-width: 100%; height: auto; }
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { scroll-margin-top: 5rem; }
+.md-content__inner { padding-top: 1.35rem; }
+.md-sidebar--primary .fastgc-toc-heading { font-size: .71rem; font-weight: 700; opacity: .72; margin: .9rem .6rem .3rem; text-transform: uppercase; letter-spacing: .04em; }
+.md-sidebar--primary .fastgc-toc-list { list-style: none; padding: 0 .25rem 0 .75rem; margin: .2rem 0 .7rem; }
+.md-sidebar--primary .fastgc-toc-list li { margin: 0; }
+.md-sidebar--primary .fastgc-toc-list a { display: block; font-size: .72rem; line-height: 1.35; padding: .35rem .45rem; border-radius: .2rem; color: var(--md-default-fg-color--light); overflow-wrap: anywhere; }
+.md-sidebar--primary .fastgc-toc-list a:hover, .md-sidebar--primary .fastgc-toc-list a:focus-visible { background: var(--md-code-bg-color); color: var(--md-accent-fg-color); }
+.md-sidebar--primary .fastgc-toc-list a[aria-current="location"] { color: var(--md-accent-fg-color); font-weight: 700; }
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary { display: block; position: sticky; top: 3.6rem; height: calc(100vh - 3.6rem); }
+  .md-sidebar--primary .md-sidebar__scrollwrap { overflow-y: auto; }
+}
+@media screen and (max-width: 76.24em) {
+  .md-sidebar--primary .fastgc-toc-heading, .md-sidebar--primary .fastgc-toc-list { display: none; }
+  .md-typeset { font-size: .91rem; }
+}
+@media screen and (max-width: 40em) {
+  .md-typeset h1 { font-size: 1.45rem; }
+  .md-typeset h2 { font-size: 1.15rem; }
+  .md-content__inner { padding-top: .8rem; }
+}
