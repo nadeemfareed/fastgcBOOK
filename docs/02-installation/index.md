@@ -377,7 +377,21 @@ For each published installation or performance result, record:
 8. Successful, skipped, and failed tiles; final output point count.
 9. Whether the benchmark was repeated, and which conditions were matched.
 
-## 2.13 Chapter summary
+## 2.13 Stage-wise ablation and algorithm stability
+
+The hierarchical FAST-GC pipeline was assessed through successive classification checkpoints, using **Site 5 (complex vegetation)** and **Site 15 (complex topography)** as contrasting stress tests. At each checkpoint, the cumulative classification was compared with reference ground labels to calculate precision, recall, F1-score, and intersection over union (IoU). Site 15 recall was also stratified by reference terrain slope. The following plots show ALS results; corresponding ULS evaluation is documented in the manuscript supplement.
+
+![Stage-wise ALS performance and slope-stratified ground recall](../assets/manuscript-figures/Figure.13.png)
+
+*Figure 2.1 (manuscript Figure 13). Cumulative ALS classification performance across processing stages. (a) Precision, recall, F1-score, and IoU for Site 15 (solid red) and Site 5 (dashed green). (b) Site 15 ground recall stratified by reference terrain slope, from 0–10° through 45–90°. Stage checkpoints show the combined result of all preceding operations.*
+
+![Site 15 spatial audit of ground classification checkpoints](../assets/manuscript-figures/Figure.14.png)
+
+*Figure 2.2 (manuscript Figure 14). Spatial progression of ALS ground classification at the complex-topography Site 15. Panels show a terrain reference and successive checkpoint maps. Green denotes correctly recovered ground (TP), blue newly recovered ground (ΔTP), red omitted reference ground (FN), and yellow false ground (FP); displayed precision, recall, and IoU are checkpoint-specific.*
+
+These figures demonstrate why stage order matters. Later stages receive the classification state produced by earlier stages; changes at a checkpoint can affect the inputs to all subsequent operations. **Cumulative stage-wise curves are not equivalent to controlled leave-one-stage-out ablation:** a causal removal test disables a component and reruns the remaining pipeline before comparing final outputs. The cumulative plots establish where performance changes occur; controlled removals are required to isolate each component's net contribution. No unmeasured removal effect is inferred from these plots.
+
+## 2.14 Chapter summary
 
 FAST-GC v0.2.1 was successfully installed and initialized using Windows Conda, Windows Python `venv`, Windows GitHub editable installation, Ubuntu WSL2 with `uv`, and Google Colab. Python 3.12 and isolated environments provide a reproducible starting point. PowerShell is the standard interface for Windows readers, while Bash and notebook equivalents preserve the same CLI configuration.
 

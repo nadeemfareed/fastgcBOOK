@@ -32,11 +32,17 @@ The availability of terrain-supporting observations also changes with LiDAR samp
 
 ## 1.4 Cross-platform consistency: ALS, ULS, and TLS
 
-Cross-platform consistency was evaluated using the central European forest LiDAR dataset of **Weiser et al. (2022)**, specifically plot **BR01 in Bretten, Baden-Württemberg, Germany**. The independently acquired ALS, TLS, and ULS observations differ in sampling geometry, point density, acquisition date, and canopy condition. Accordingly, correspondence was assessed at the terrain-surface level rather than by direct point-wise comparison. FAST-GC ground returns were used to reconstruct independent **0.5 m DEMs**, and spatially coincident cells were compared across six platform and canopy-condition combinations (Figure 1.4). Across the common footprints, the DEMs exhibited **R² and concordance correlation coefficients of at least 0.99**, with **RMSE of 0.10–0.16 m**. The ULS-based comparisons covered **5.47 ha**, whereas comparisons involving TLS were restricted to **0.48 ha**. The results indicate strong terrain-surface correspondence despite substantial differences in the underlying LiDAR observations.
+The independently acquired ALS, ULS, and TLS observations differ in viewing geometry, ground visibility, and vegetation conditions. FAST-GC ground classifications were used to construct independent 0.5 m DEMs and compare spatially coincident elevations across BR01, BR07, and SP02. The comparison is a terrain-surface consistency assessment, not a direct point-by-point ground-label accuracy test.
 
-![Cross-platform ALS ULS TLS DEM consistency](figures/fig09_paper.png)
+![Cross-platform DEM scatterplots and residuals](../assets/manuscript-figures/Figure.10.png)
 
-*Figure 1.4. Cross-platform correspondence of independently reconstructed 0.5 m DEMs at forest plot BR01, Bretten, Germany, from the multi-platform dataset of Weiser et al. (2022). Panels compare (a) ULS leaf-off versus leaf-on, (b) ALS versus ULS leaf-off, (c) ALS versus ULS leaf-on, (d) ALS versus TLS, (e) TLS versus ULS leaf-off, and (f) TLS versus ULS leaf-on. Hexagonal bins represent paired DEM-cell elevations; dashed red lines indicate 1:1 correspondence and blue lines indicate fitted regressions. Comparisons use overlapping footprints of 5.47 ha for ULS-based pairs and 0.48 ha for pairs involving TLS. The results characterize terrain-surface agreement, not point-wise classification accuracy.*
+*Figure 1.4a (manuscript Figure 10). Cross-platform comparison of 0.5 m DEM elevations from ALS, ULS, and TLS for forest plots BR01, BR07, and SP02. The upper panels compare (a) ALS and ULS, (b) ALS and TLS, and (c) ULS and TLS, distinguishing acquisitions and canopy conditions where available. The lower panels show corresponding elevation residual distributions (Y − X). Hexagonal densities and the dashed 1:1/zero-residual references facilitate visual assessment of agreement and dispersion.*
+
+![Cross-platform DEM error statistics](../assets/manuscript-figures/Figure.11.png)
+
+*Figure 1.4b (manuscript Figure 11). Cross-platform DEM agreement summarized by (a) RMSE, (b) MAE, (c) 95th-percentile absolute error (P95), and (d) normalized median absolute deviation (NMAD), for BR01, BR07, and SP02. Categories distinguish ULS leaf-off versus leaf-on, ALS–ULS, ALS–TLS, and TLS–ULS comparisons. Metrics are expressed in meters.*
+
+Across the plotted comparisons, ALS–ULS residuals are generally more concentrated around zero, whereas comparisons involving TLS show greater dispersion and higher error magnitudes in several site/platform combinations. This is consistent with differences in ground visibility and sampling geometry: TLS is acquired from ground-based viewpoints, so tree stems, shrubs, and low vegetation can occlude entire terrain patches. At 0.5 m resolution, cells without direct TLS ground observations may depend on interpolation, adding local uncertainty. Figure 1.4b makes these contrasts easier to interpret using multiple robust and conventional error summaries. High correlation alone should not be taken to imply that every cell has a small residual.
 
 ## 1.5 Install FAST-GC
 
