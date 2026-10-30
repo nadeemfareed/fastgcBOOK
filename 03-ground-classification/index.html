@@ -7,6 +7,8 @@
       
       
       
+        <link rel="canonical" href="https://nadeemfareed.github.io/fastgcBOOK/03-ground-classification/">
+      
       
         <link rel="prev" href="../02-fast-gis/">
       
@@ -148,6 +150,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
@@ -187,9 +191,7 @@
 
 
 
-  
-
-<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
       
@@ -833,9 +835,404 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#41-from-classified-points-to-continuous-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 From classified points to continuous maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#42-processing-modes-and-their-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Processing modes and their use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#43-full-survey-als-example-br01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Full-survey ALS example: BR01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3 Full-survey ALS example: BR01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#430-before-running-verify-the-active-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.0 Before running: verify the active CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#431-fast_gc-only-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.1 FAST_GC-only baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#432-standard-end-to-end-command-ground-dem-normalization-dsm-and-chm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3.2 Standard end-to-end command: ground, DEM, normalization, DSM, and CHM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#44-tiled-mapping-footprint-buffers-merge-and-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Tiled mapping: footprint, buffers, merge, and performance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Tiled mapping: footprint, buffers, merge, and performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#441-previously-measured-site-5-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4.1 Previously measured Site 5 benchmark
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#442-multi-file-and-batch-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4.2 Multi-file and batch inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#45-als-uls-and-tls-operational-distinctions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 ALS, ULS, and TLS: operational distinctions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 ALS, ULS, and TLS: operational distinctions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#451-sensor-specific-command-patterns-and-initial-tile-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5.1 Sensor-specific command patterns and initial tile settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#46-dem-resolution-and-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 DEM: resolution and interpolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#47-chm-variants-and-percentile-families" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 CHM variants and percentile families
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.7 CHM variants and percentile families">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fareed-2026-height-selective-chm-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fareed (2026): height-selective CHM reconstruction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chm-variants-two-column-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CHM variants — two-column comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#471-measured-raster-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7.1 Measured raster summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#48-chm-based-crown-segmentation-and-individual-tree-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8 CHM-based crown segmentation and individual-tree detection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.8 CHM-based crown segmentation and individual-tree detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#481-methods-exposed-by-fast-gc-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.1 Methods exposed by FAST-GC 0.2.1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#482-why-use-the-merged-chm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.2 Why use the merged CHM?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#483-fast_itd-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8.3 FAST_ITD deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#49-fast_treeclouds-from-crown-labels-to-individual-tree-las" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9 FAST_TREECLOUDS: from crown labels to individual-tree LAS
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.9 FAST_TREECLOUDS: from crown labels to individual-tree LAS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#491-las-attributes-and-tree-cloud-products" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.1 LAS attributes and tree-cloud products
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#492-interpreting-segmentation-and-validating-tree-clouds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.2 Interpreting segmentation and validating tree clouds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#493-installation-and-release-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.3 Installation and release reproducibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#494-future-software-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9.4 Future software validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#410-recovering-products-without-reclassifying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.10 Recovering products without reclassifying
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#411-quality-control-and-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Quality control and troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#412-reproducibility-and-next-chapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.12 Reproducibility and next chapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.12 Reproducibility and next chapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selected-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selected references
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           
             <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
               
               <article class="md-content__inner md-typeset">
                 
@@ -2041,6 +2438,46 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../02-fast-gis/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Chapter 3: FAST-GIS">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Chapter 3: FAST-GIS
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-products/" class="md-footer__link md-footer__link--next" aria-label="Next: Chapter 5: Products">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Chapter 5: Products
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -2062,14 +2499,18 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
     
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "navigation.instant", "navigation.instant.progress", "navigation.path", "navigation.footer", "toc.follow", "search.suggest"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../javascripts/fastgc-navigation.js"></script>
       
     
   

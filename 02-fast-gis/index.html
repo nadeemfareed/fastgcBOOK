@@ -7,6 +7,8 @@
       
       
       
+        <link rel="canonical" href="https://nadeemfareed.github.io/fastgcBOOK/02-fast-gis/">
+      
       
         <link rel="prev" href="../02-installation/">
       
@@ -148,6 +150,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
@@ -187,9 +191,7 @@
 
 
 
-  
-
-<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="FAST-GC Book" class="md-nav__button md-logo" aria-label="FAST-GC Book" data-md-component="logo">
       
@@ -995,9 +997,566 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#31-scope-and-scientific-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Scope and scientific motivation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Scope and scientific motivation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-verified-capabilities-and-completeness-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.1 Verified capabilities and completeness checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-running-case-study-follow-plot-005-from-source-to-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The running case study: follow Plot 005 from source to measurements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#32-plot-geometry-and-processing-footprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Plot geometry and processing footprint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Plot geometry and processing footprint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-processing-core-and-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 Processing core and buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-sampling-techniques-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Sampling techniques at a glance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Sampling techniques at a glance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-random-sampling-complete-br01-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1 Random sampling: complete BR01 example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-plot-005-raw-and-processed-point-cloud-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2 Plot 005 raw and processed point-cloud views
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#34-continuoussystematic-plot-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Continuous/systematic plot sampling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-rough-height-stratified-circular-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Rough-height-stratified circular sampling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.5 Rough-height-stratified circular sampling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-a-create-the-required-dsm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step A — Create the required DSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-b-select-three-plots-per-rough-height-stratum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step B — Select three plots per rough-height stratum
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#36-imported-plot-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Imported plot definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.6 Imported plot definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#361-using-the-authors-own-field-plot-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.1 Using the author's own field-plot boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#37-survey-catalog-crs-multiple-source-files-and-spatial-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Survey catalog, CRS, multiple source files, and spatial integrity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#38-fast-gis-output-and-metadata-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 FAST-GIS output and metadata contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#39-from-clipping-to-downstream-plots-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 From clipping to downstream plots-run
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.9 From clipping to downstream plots-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#391-product-lineage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9.1 Product lineage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#310-ground-surface-and-canopy-height-product-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10 Ground, surface, and canopy-height product bundle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.10 Ground, surface, and canopy-height product bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3101-expanded-core-and-structure-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10.1 Expanded core and structure command
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#311-terrain-bundle-definition-measurement-and-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11 Terrain bundle: definition, measurement, and interpretation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.11 Terrain bundle: definition, measurement, and interpretation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3111-plot-005-terrain-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11.1 Plot 005 terrain interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#312-forest-structure-bundle-canopy-and-height-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12 Forest structure bundle: canopy and height statistics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.12 Forest structure bundle: canopy and height statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3121-plot-005-canopy-and-height-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12.1 Plot 005 canopy and height interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3122-plot-005-vertical-layer-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12.2 Plot 005 vertical-layer interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#313-local-3d-geometric-and-return-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.13 Local 3D geometric and return metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.13 Local 3D geometric and return metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3131-plot-005-local-geometry-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.13.1 Plot 005 local geometry interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#314-optional-individual-tree-and-multitemporal-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.14 Optional individual-tree and multitemporal bundles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#315-validation-known-errors-and-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15 Validation, known errors, and reproducibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.15 Validation, known errors, and reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3151-verified-operational-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.1 Verified operational lessons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3152-reproducibility-record-for-plot-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.2 Reproducibility record for Plot 005
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3153-figure-and-product-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.3 Figure and product inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3154-before-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.4 Before publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3155-reader-exercise-reproduce-the-plot-005-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.15.5 Reader exercise: reproduce the Plot 005 interpretation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#316-summary-and-transition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.16 Summary and transition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#317-literature-foundations-and-metric-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17 Literature foundations and metric definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.17 Literature foundations and metric definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3171-reproducible-metric-definitions-in-fast_structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.1 Reproducible metric definitions in FAST_STRUCTURE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3172-three-dimensional-point-distribution-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.2 Three-dimensional point-distribution descriptors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3173-terrain-height-surfaces-and-sampling-scientific-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.3 Terrain, height surfaces and sampling: scientific context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3174-datasetfigurecommand-traceability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.17.4 Dataset–figure–command traceability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#318-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.18 References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           
             <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
               
               <article class="md-content__inner md-typeset">
                 
@@ -2949,6 +3508,46 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../02-installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Chapter 2: Cross-Platform Installation, Configuration, and Performance">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Chapter 2: Cross-Platform Installation, Configuration, and Performance
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-ground-classification/" class="md-footer__link md-footer__link--next" aria-label="Next: Chapter 4: Ground Classification">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Chapter 4: Ground Classification
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -2970,14 +3569,18 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
     
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.integrate", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "navigation.instant", "navigation.instant.progress", "navigation.path", "navigation.footer", "toc.follow", "search.suggest"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../javascripts/fastgc-navigation.js"></script>
       
     
   
